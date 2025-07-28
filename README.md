@@ -32,11 +32,6 @@ This project provides tools for processing Japanese text with visual elements. I
    cd frontend
    npm install
    ```
-3. Set up environment variables in `.env`
-   ```env
-   TESSERACT_PATH=/usr/local/bin/tesseract
-   ```
-
 ### Configuration
 
 - Configure Tesseract path in environment variables
