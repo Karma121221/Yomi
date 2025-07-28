@@ -18,7 +18,7 @@ This project provides tools for processing Japanese text with visual elements. I
 ### Prerequisites
 
 - Python 3.x
-- Tesseract OCR
+- Azure Vision API
 - Node.js (for frontend components)
 
 ### Installation
@@ -33,9 +33,8 @@ This project provides tools for processing Japanese text with visual elements. I
    npm install
    ```
 ### Configuration
-
-- Configure Tesseract path in environment variables
-- Set up any API keys needed for external services
+- Set up Azure Vision API Key for Japanese Text OCR
+- Set up any other API keys needed for external services
 - Adjust processing parameters in config files
 
 ## Usage
