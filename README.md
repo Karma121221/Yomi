@@ -25,7 +25,7 @@ This project provides tools for processing Japanese text with visual elements. I
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/yourusername/visual-jp.git
+   git clone https://github.com/yourusername/yomi.git
    ```
 2. Install frontend dependencies
    ```bash
