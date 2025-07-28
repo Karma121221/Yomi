@@ -85,12 +85,14 @@ class AzureOCR:
                 raise Exception(f"Unknown status: {status}")
 
     def _parse_ocr_result(self, result: Dict[str, Any]) -> Dict[str, Any]:
-        """Parse OCR result and extract text with metadata"""
+        """
+        Parse OCR result, sort lines based on orientation, and extract text.
+        """
         parsed_result = {
             'full_text': '',
             'lines': [],
             'pages': [],
-            'reading_direction': 'auto-detected'
+            'reading_direction': 'unknown'
         }
         
         analyze_result = result.get('analyzeResult', {})
@@ -99,6 +101,32 @@ class AzureOCR:
         all_text_lines = []
         
         for page_idx, page in enumerate(read_results):
+            lines = page.get('lines', [])
+            
+            # --- START: FIX ---
+            # If there are no lines, skip to the next page
+            if not lines:
+                continue
+
+            # 1. Detect Orientation
+            # Calculate average dimensions of line bounding boxes
+            avg_height = sum(line['boundingBox'][7] - line['boundingBox'][1] for line in lines) / len(lines)
+            avg_width = sum(line['boundingBox'][2] - line['boundingBox'][0] for line in lines) / len(lines)
+            is_vertical = avg_height > avg_width
+
+            # 2. Apply Conditional Sorting
+            if is_vertical:
+                # For vertical text (like manga), sort columns from right-to-left
+                parsed_result['reading_direction'] = 'vertical (right-to-left)'
+                # Sort by the leftmost X-coordinate, in descending order
+                lines.sort(key=lambda line: line['boundingBox'][0], reverse=True)
+            else:
+                # For horizontal text, sort lines from top-to-bottom
+                parsed_result['reading_direction'] = 'horizontal (top-to-bottom)'
+                # Sort by the topmost Y-coordinate, in ascending order
+                lines.sort(key=lambda line: line['boundingBox'][1])
+            # --- END: FIX ---
+
             page_info = {
                 'page_number': page_idx + 1,
                 'width': page.get('width', 0),
@@ -106,8 +134,7 @@ class AzureOCR:
                 'lines': []
             }
             
-            lines = page.get('lines', [])
-            for line in lines:
+            for line in lines: # This loop now iterates over the CORRECTLY SORTED lines
                 text = line.get('text', '')
                 bounding_box = line.get('boundingBox', [])
                 
