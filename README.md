@@ -27,16 +27,12 @@ This project provides tools for processing Japanese text with visual elements. I
    ```bash
    git clone https://github.com/yourusername/visual-jp.git
    ```
-2. Install Python dependencies
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Install frontend dependencies
+2. Install frontend dependencies
    ```bash
    cd frontend
    npm install
    ```
-4. Set up environment variables in `.env`
+3. Set up environment variables in `.env`
    ```env
    TESSERACT_PATH=/usr/local/bin/tesseract
    ```
