@@ -1,0 +1,15 @@
+.DS_Store
+Thumbs.db
+
+.env
+
+*.pyc
+__pycache__/
+instance/
+.webassets-cache
+
+.frontend/node_modules/
+node_modules/
+
+.Tesseract/
+tesseract/
