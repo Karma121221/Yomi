@@ -89,7 +89,16 @@ function App() {
         <div className="navbar-container">
           <h1 className="navbar-brand">Yomi</h1>
           <button className="dark-mode-toggle" onClick={toggleDarkMode}>
-            {darkMode ? '☀️' : '🌙'}
+            <img 
+              src="/sun.png" 
+              alt="Light mode" 
+              className="theme-icon sun-icon"
+            />
+            <img 
+              src="/moon.png" 
+              alt="Dark mode" 
+              className="theme-icon moon-icon"
+            />
           </button>
         </div>
       </nav>
