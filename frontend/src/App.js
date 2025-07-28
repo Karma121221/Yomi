@@ -87,7 +87,7 @@ function App() {
     <div className="App">
       <nav className="navbar">
         <div className="navbar-container">
-          <h1 className="navbar-brand">Yomi</h1>
+          <h1 className="navbar-brand">読 Yomi</h1>
           <button className="dark-mode-toggle" onClick={toggleDarkMode}>
             <img 
               src="/sun.png" 
