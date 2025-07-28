@@ -1,4 +1,4 @@
-# Visual JP
+# Yomi
 
 A project for visual Japanese processing.
 
