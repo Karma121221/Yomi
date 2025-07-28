@@ -23,16 +23,13 @@ def preprocess_image(image_path: str) -> Optional[np.ndarray]:
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blurred = cv2.medianBlur(gray, 3)
     
-    # Calculate the mean brightness of the blurred image
     mean_brightness = cv2.mean(blurred)[0]
     
-    # If the image is predominantly dark (text is likely light),
-    # we need to invert the thresholding
-    if mean_brightness < 127:  # 127 is middle value for 0-255 range
+    if mean_brightness < 127:
         thresh = cv2.adaptiveThreshold(
             blurred, 255,
             cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-            cv2.THRESH_BINARY,  # Normal threshold for dark background
+            cv2.THRESH_BINARY, 
             11,
             2
         )
@@ -40,7 +37,7 @@ def preprocess_image(image_path: str) -> Optional[np.ndarray]:
         thresh = cv2.adaptiveThreshold(
             blurred, 255,
             cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-            cv2.THRESH_BINARY_INV,  # Inverted threshold for light background
+            cv2.THRESH_BINARY_INV,
             11,
             2
         )
@@ -58,7 +55,7 @@ def extract_text_from_image(image: np.ndarray, lang: str, psm: int) -> str:
 def add_furigana(text: str) -> str:
     if not text:
         return ""
-    kks = pykakasi.kakasi()  # Changed from kakasi.kakasi() to pykakasi.kakasi()
+    kks = pykakasi.kakasi() 
     kks.setMode("J", "H")
     kks.setMode("K", "H")
     kks.setMode("E", "H")
@@ -81,11 +78,11 @@ if __name__ == "__main__":
 
         if choice == 'v':
             lang = 'jpn_vert'
-            psm = 4  # Changed from 5 to 4 for better multiline vertical text handling
+            psm = 4 
             orientation = "Vertical"
         else:
             lang = 'jpn'
-            psm = 1  # Changed from 6 to 1 for better multiline horizontal text handling
+            psm = 1
             orientation = "Horizontal"
         
         print(f"\n🤖 Extracting text using the {orientation} model...")

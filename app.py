@@ -9,17 +9,15 @@ import json
 from furigana_az import FuriganaGenerator
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for React frontend
+CORS(app)
 
-# Configure upload settings
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Initialize furigana generator
 furigana_gen = FuriganaGenerator()
 
 def translate_text(text, source_lang='ja', target_lang='en'):
@@ -27,13 +25,11 @@ def translate_text(text, source_lang='ja', target_lang='en'):
     Translate text using LibreTranslate API with improved error handling
     """
     try:
-        # Clean and validate input text
         if not text or not text.strip():
             return None
         
         text = text.strip()
         
-        # Try MyMemory API (free, no key required)
         try:
             mymemory_url = f"https://api.mymemory.translated.net/get?q={requests.utils.quote(text)}&langpair={source_lang}|{target_lang}"
             response = requests.get(mymemory_url, timeout=10)
@@ -48,7 +44,6 @@ def translate_text(text, source_lang='ja', target_lang='en'):
         except Exception as e:
             print(f"MyMemory API error: {e}")
         
-        # Try LibreTranslate with proper API endpoint
         libretranslate_urls = [
             "https://libretranslate.de/api/v1/translate",
             "https://translate.astian.org/translate"
@@ -88,7 +83,6 @@ def translate_text(text, source_lang='ja', target_lang='en'):
                 print(f"Request error for {url}: {e}")
                 continue
         
-        # If all services fail, return None instead of fallback
         print("All translation services failed")
         return None
             
@@ -114,17 +108,14 @@ def upload_file():
         if not allowed_file(file.filename):
             return jsonify({'error': 'Invalid file type. Please upload an image.'}), 400
         
-        # Save uploaded file temporarily
         filename = secure_filename(file.filename)
         temp_dir = tempfile.gettempdir()
         temp_path = os.path.join(temp_dir, filename)
         file.save(temp_path)
         
         try:
-            # Process image with furigana generator
             result = furigana_gen.extract_text_with_furigana(temp_path)
             
-            # Translate the original text to English
             original_text = result['original_ocr']['full_text']
             translated_text = translate_text(original_text, 'ja', 'en')
             
@@ -158,7 +149,6 @@ def upload_file():
             return jsonify(response_data)
             
         finally:
-            # Clean up temporary file
             if os.path.exists(temp_path):
                 os.remove(temp_path)
     

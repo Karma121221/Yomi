@@ -5,10 +5,8 @@ from typing import List, Dict, Any, Tuple
 from dotenv import load_dotenv
 import requests
 
-# Import the OCR functionality
 from ocr_az import AzureOCR
 
-# Load environment variables
 load_dotenv()
 
 class FuriganaGenerator:
@@ -16,7 +14,6 @@ class FuriganaGenerator:
         """Initialize Furigana Generator with OCR and dictionary capabilities"""
         self.ocr = AzureOCR()
         
-        # Initialize Japanese text processing
         try:
             import pykakasi
             self.kakasi = pykakasi.kakasi()
@@ -25,7 +22,6 @@ class FuriganaGenerator:
             print("Warning: pykakasi not installed. Install with: pip install pykakasi")
             self.has_kakasi = False
         
-        # Try to import MeCab for better tokenization
         try:
             import MeCab
             self.mecab = MeCab.Tagger("-Owakati")
@@ -34,7 +30,6 @@ class FuriganaGenerator:
             print("Warning: MeCab not available. Using basic tokenization.")
             self.has_mecab = False
         
-        # Kanji pattern for detection
         self.kanji_pattern = re.compile(r'[\u4e00-\u9faf]+')
         self.hiragana_pattern = re.compile(r'[\u3040-\u309f]+')
         self.katakana_pattern = re.compile(r'[\u30a0-\u30ff]+')
@@ -49,10 +44,8 @@ class FuriganaGenerator:
         Returns:
             Dict containing original OCR results plus furigana annotations
         """
-        # First extract text using OCR
         ocr_result = self.ocr.extract_text_from_image(image_path)
         
-        # Add furigana processing to each line
         furigana_result = {
             'original_ocr': ocr_result,
             'furigana_text': '',
@@ -60,7 +53,6 @@ class FuriganaGenerator:
             'furigana_pages': []
         }
         
-        # Process each page
         for page in ocr_result['pages']:
             furigana_page = {
                 'page_number': page['page_number'],
@@ -85,7 +77,6 @@ class FuriganaGenerator:
             
             furigana_result['furigana_pages'].append(furigana_page)
         
-        # Create combined furigana text
         all_furigana_lines = []
         for page in furigana_result['furigana_pages']:
             for line in page['lines']:
@@ -112,14 +103,11 @@ class FuriganaGenerator:
                 'parts': [{'text': text, 'reading': '', 'type': 'unknown'}]
             }
         
-        # Tokenize and analyze the text
         parts = self._tokenize_and_analyze(text)
         
-        # Generate furigana text
         furigana_text_parts = []
         for part in parts:
             if part['type'] == 'kanji' and part['reading']:
-                # Format: 漢字(かんじ)
                 furigana_text_parts.append(f"{part['text']}({part['reading']})")
             else:
                 furigana_text_parts.append(part['text'])
@@ -142,10 +130,8 @@ class FuriganaGenerator:
         parts = []
         
         if self.has_mecab:
-            # Use MeCab for better tokenization
             parts = self._mecab_tokenize(text)
         else:
-            # Fallback to basic kakasi conversion
             parts = self._kakasi_tokenize(text)
         
         return parts
@@ -154,7 +140,6 @@ class FuriganaGenerator:
         """Tokenize using MeCab for better accuracy"""
         parts = []
         
-        # Parse with MeCab
         parsed = self.mecab.parse(text)
         words = parsed.strip().split()
         
@@ -172,7 +157,6 @@ class FuriganaGenerator:
         parts = []
         
         try:
-            # Convert using kakasi
             result = self.kakasi.convert(text)
             
             for item in result:
@@ -187,7 +171,6 @@ class FuriganaGenerator:
                 parts.append(part_info)
                 
         except Exception as e:
-            # If kakasi fails, treat as single unknown part
             parts.append({
                 'text': text,
                 'reading': '',
@@ -202,7 +185,6 @@ class FuriganaGenerator:
         
         if text_type == 'kanji' and self.has_kakasi:
             try:
-                # Get reading using kakasi
                 result = self.kakasi.convert(word)
                 if result:
                     reading = ''.join([item.get('hira', '') for item in result])
@@ -273,7 +255,6 @@ class FuriganaGenerator:
         
         html_parts.append('</div>')
         
-        # Add CSS for better display
         css = """
         <style>
         .furigana-text {
@@ -317,10 +298,8 @@ class FuriganaGenerator:
 def main():
     """Example usage of the FuriganaGenerator class"""
     try:
-        # Initialize furigana generator
         furigana_gen = FuriganaGenerator()
         
-        # Get image path from user
         image_path = input("Enter path to Japanese image file: ").strip()
         
         if not os.path.exists(image_path):
@@ -329,7 +308,6 @@ def main():
         
         print("Processing image and generating furigana...")
         
-        # Extract text with furigana
         result = furigana_gen.extract_text_with_furigana(image_path)
         
         print("\n" + "="*50)
@@ -344,7 +322,6 @@ def main():
         print("-" * 30)
         print(result['furigana_text'])
         
-        # Detailed breakdown
         print(f"\nDetailed Breakdown:")
         print("-" * 30)
         for page in result['furigana_pages']:
@@ -354,14 +331,12 @@ def main():
                 print(f"    Original: {line['original_text']}")
                 print(f"    Furigana: {line['furigana_text']}")
                 
-                # Show part breakdown
                 kanji_parts = [p for p in line['furigana_parts'] if p['type'] == 'kanji' and p['reading']]
                 if kanji_parts:
                     print(f"    Kanji readings:")
                     for part in kanji_parts:
                         print(f"      {part['text']} → {part['reading']}")
         
-        # Generate HTML file
         html_output = furigana_gen.generate_html_furigana(result)
         html_filename = os.path.splitext(os.path.basename(image_path))[0] + "_furigana.html"
         

@@ -12,13 +12,11 @@ function App() {
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
 
-  // Load dark mode preference from localStorage
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDarkMode);
   }, []);
 
-  // Apply dark mode class to body
   useEffect(() => {
     if (darkMode) {
       document.body.classList.add('dark-mode');

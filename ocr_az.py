@@ -4,7 +4,6 @@ import json
 from typing import List, Dict, Any
 from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
 class AzureOCR:
@@ -16,13 +15,10 @@ class AzureOCR:
         if not self.endpoint or not self.key:
             raise ValueError("Azure OCR endpoint and key must be set in .env file")
         
-        # Remove trailing slash if present
         self.endpoint = self.endpoint.rstrip('/')
         
-        # OCR endpoint URL
         self.ocr_url = f"{self.endpoint}/vision/v3.2/read/analyze"
         
-        # Headers for API requests
         self.headers = {
             'Ocp-Apim-Subscription-Key': self.key,
             'Content-Type': 'application/octet-stream'
@@ -39,11 +35,9 @@ class AzureOCR:
             Dict containing extracted text and metadata
         """
         try:
-            # Read image file
             with open(image_path, 'rb') as image_file:
                 image_data = image_file.read()
             
-            # Submit image for OCR processing
             response = requests.post(
                 self.ocr_url,
                 headers=self.headers,
@@ -53,15 +47,12 @@ class AzureOCR:
             if response.status_code != 202:
                 raise Exception(f"OCR request failed: {response.status_code} - {response.text}")
             
-            # Get the operation location from response headers
             operation_location = response.headers.get('Operation-Location')
             if not operation_location:
                 raise Exception("No operation location received")
             
-            # Poll for results
             result = self._poll_for_result(operation_location)
             
-            # Parse and return results
             return self._parse_ocr_result(result)
             
         except FileNotFoundError:
@@ -89,7 +80,7 @@ class AzureOCR:
             elif status == 'failed':
                 raise Exception("OCR processing failed on Azure side")
             elif status in ['notStarted', 'running']:
-                time.sleep(1)  # Wait 1 second before polling again
+                time.sleep(1) 
             else:
                 raise Exception(f"Unknown status: {status}")
 
@@ -131,7 +122,6 @@ class AzureOCR:
             
             parsed_result['pages'].append(page_info)
         
-        # Combine all text
         parsed_result['full_text'] = '\n'.join(all_text_lines)
         parsed_result['lines'] = all_text_lines
         
@@ -162,10 +152,8 @@ class AzureOCR:
 def main():
     """Example usage of the AzureOCR class"""
     try:
-        # Initialize OCR client
         ocr = AzureOCR()
         
-        # Example usage - replace with your image path
         image_path = input("Enter path to Japanese image file: ").strip()
         
         if not os.path.exists(image_path):
@@ -174,7 +162,6 @@ def main():
         
         print("Processing image with Azure OCR...")
         
-        # Extract text with full details
         result = ocr.extract_text_from_image(image_path)
         
         print("\n" + "="*50)
@@ -188,7 +175,6 @@ def main():
         print(f"\nNumber of pages: {len(result['pages'])}")
         print(f"Total lines detected: {len(result['lines'])}")
         
-        # Show line-by-line results with confidence
         print(f"\nDetailed Results:")
         print("-" * 30)
         for page in result['pages']:
