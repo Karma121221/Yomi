@@ -4,7 +4,14 @@ A project for visual Japanese processing.
 
 ## Description
 
-This project provides tools for processing Japanese text with visual elements.
+This project provides tools for processing Japanese text with visual elements. It combines OCR technology with natural language processing to analyze and understand Japanese content in images.
+
+## Features
+
+- Japanese text recognition from images
+- Visual text processing and analysis
+- Frontend interface for easy interaction
+- API endpoints for integration
 
 ## Getting Started
 
@@ -17,17 +24,39 @@ This project provides tools for processing Japanese text with visual elements.
 ### Installation
 
 1. Clone the repository
-2. Install dependencies
-3. Set up environment variables in `.env`
+   ```bash
+   git clone https://github.com/yourusername/visual-jp.git
+   ```
+2. Install Python dependencies
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. Install frontend dependencies
+   ```bash
+   cd frontend
+   npm install
+   ```
+4. Set up environment variables in `.env`
+   ```env
+   TESSERACT_PATH=/usr/local/bin/tesseract
+   ```
+
+### Configuration
+
+- Configure Tesseract path in environment variables
+- Set up any API keys needed for external services
+- Adjust processing parameters in config files
 
 ## Usage
 
-Instructions for using the project will be added here.
+### Running the Application
 
-## Contributing
-
-Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE.md
+1. Start the backend server
+   ```bash
+   python app.py
+   ```
+2. Start the frontend development server
+   ```bash
+   cd frontend
+   npm start
+   ```
