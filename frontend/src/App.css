@@ -415,99 +415,72 @@ body.dark-mode .file-input-label {
   border-left: 4px solid var(--accent-green);
 }
 
+.line-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
 .furigana-line {
   font-size: 1.5em;
   line-height: 2.2;
   margin-bottom: 10px;
   color: var(--text-primary);
+  flex: 1;
 }
 
-.furigana-ruby {
-  ruby-align: center;
-  margin: 0 3px;
+.listen-button {
+  background: var(--accent-blue);
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+  flex-shrink: 0;
+  margin-top: 5px;
 }
 
-.furigana-rt {
-  font-size: 0.7em;
-  color: var(--text-muted);
-  font-weight: normal;
+.listen-button:hover:not(:disabled) {
+  background: #2980b9;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
 }
 
-/* Light mode - night-like gray gradient for furigana */
-body:not(.dark-mode) .navbar-brand {
-    color: transparent;
-    background: linear-gradient(45deg, #fbfbfb, #72feff, #a3a3a3);
-    -webkit-background-clip: text;
-    background-clip: text;
-    background-size: 200% 200%;
-    animation: gradientShift 3s ease infinite;
+.listen-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
-/* Dark mode - sun-like yellow gradient for furigana */
-body.dark-mode .furigana-rt {
-  color: transparent;
-  background: linear-gradient(45deg, #ffd700, #ffa500, #ffd700);
-  -webkit-background-clip: text;
-  background-clip: text;
-  background-size: 200% 200%;
-  animation: gradientShift 3s ease infinite;
+.speaker-icon {
+  width: 20px;
+  height: 20px;
 }
 
-@keyframes gradientShift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+.button-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
-.confidence-score {
-  font-size: 0.9em;
-  font-style: italic;
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: 500;
+/* Dark mode adjustments for listen button */
+body.dark-mode .listen-button {
+  background: #4a9eff;
+  box-shadow: 0 2px 8px rgba(74, 158, 255, 0.3);
 }
 
-.confidence-high {
-  color: #27ae60;
-  background-color: rgba(39, 174, 96, 0.1);
-}
-
-.confidence-medium {
-  color: #f39c12;
-  background-color: rgba(243, 156, 18, 0.1);
-}
-
-.confidence-low {
-  color: #e74c3c;
-  background-color: rgba(231, 76, 60, 0.1);
-}
-
-.simple-text {
-  background: var(--bg-secondary);
-  padding: 25px;
-  border-radius: 12px;
-  font-family: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif;
-  font-size: 1.3em;
-  line-height: 1.8;
-  border-left: 4px solid var(--accent-green);
-  color: var(--text-primary);
-}
-
-/* Footer */
-.app-footer {
-  text-align: center;
-  padding: 25px 20px;
-  color: var(--text-muted);
-  border-top: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  margin-top: auto;
+body.dark-mode .listen-button:hover:not(:disabled) {
+  background: #357abd;
+  box-shadow: 0 4px 12px rgba(74, 158, 255, 0.4);
 }
 
 /* Responsive Design */
@@ -576,4 +549,61 @@ body.dark-mode .furigana-rt {
 /* Smooth transitions for dark mode */
 * {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.confidence-score {
+  font-size: 0.9em;
+  font-style: italic;
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.confidence-high {
+  color: #27ae60;
+  background-color: rgba(39, 174, 96, 0.1);
+}
+
+.confidence-medium {
+  color: #f39c12;
+  background-color: rgba(243, 156, 18, 0.1);
+}
+
+.confidence-low {
+  color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1);
+}
+
+.simple-text {
+  background: var(--bg-secondary);
+  padding: 25px;
+  border-radius: 12px;
+  font-family: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+  font-size: 1.3em;
+  line-height: 1.8;
+  border-left: 4px solid var(--accent-green);
+  color: var(--text-primary);
+}
+
+/* Footer */
+.app-footer {
+  text-align: center;
+  padding: 25px 20px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  margin-top: auto;
 }

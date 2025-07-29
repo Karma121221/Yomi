@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_file
 from flask_cors import CORS
 import os
 import tempfile
@@ -7,6 +7,16 @@ import base64
 import requests
 import json
 from furigana_az import FuriganaGenerator
+import io
+import hashlib
+
+# Add GTTS import
+try:
+    from gtts import gTTS
+    GTTS_AVAILABLE = True
+except ImportError:
+    print("Warning: gTTS not installed. Install with: pip install gtts")
+    GTTS_AVAILABLE = False
 
 app = Flask(__name__)
 CORS(app)
@@ -158,6 +168,43 @@ def upload_file():
 @app.route('/api/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'healthy', 'message': 'Furigana API is running'})
+
+@app.route('/api/tts', methods=['POST'])
+def text_to_speech():
+    """
+    Convert Japanese text to speech using Google Text-to-Speech
+    """
+    if not GTTS_AVAILABLE:
+        return jsonify({'error': 'Text-to-speech service not available'}), 500
+    
+    try:
+        data = request.get_json()
+        text = data.get('text', '').strip()
+        
+        if not text:
+            return jsonify({'error': 'No text provided'}), 400
+        
+        # Create a hash of the text for caching
+        text_hash = hashlib.md5(text.encode('utf-8')).hexdigest()
+        
+        # Create TTS object
+        tts = gTTS(text=text, lang='ja', slow=False)
+        
+        # Save to a bytes buffer
+        audio_buffer = io.BytesIO()
+        tts.write_to_fp(audio_buffer)
+        audio_buffer.seek(0)
+        
+        # Return the audio file
+        return send_file(
+            audio_buffer,
+            mimetype='audio/mpeg',
+            as_attachment=False,
+            download_name=f'tts_{text_hash}.mp3'
+        )
+        
+    except Exception as e:
+        return jsonify({'error': f'TTS generation failed: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
