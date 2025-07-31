@@ -83,7 +83,7 @@ body {
 /* Light mode - night-like gray gradient for navbar brand */
 body:not(.dark-mode) .navbar-brand {
     color: transparent;
-    background: linear-gradient(45deg, #fbfbfb, #a7c0a5, #a3a3a3);
+    background: linear-gradient(45deg, #fbfbfb, #6deeff, #a6babb);
     -webkit-background-clip: text;
     background-clip: text;
     background-size: 200% 200%;

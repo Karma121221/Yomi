@@ -20,7 +20,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true); // Changed to true for default dark mode
   const [playingAudio, setPlayingAudio] = useState(null);
   const [audioLoadingStates, setAudioLoadingStates] = useState({});
   
@@ -40,8 +40,15 @@ function App() {
   const [showTraditionalFurigana, setShowTraditionalFurigana] = useState(false);
 
   useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    setDarkMode(savedDarkMode);
+    // Check if user has a saved preference, otherwise default to dark mode
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode !== null) {
+      setDarkMode(savedDarkMode === 'true');
+    } else {
+      // First time visit - default to dark mode and save preference
+      setDarkMode(true);
+      localStorage.setItem('darkMode', 'true');
+    }
   }, []);
 
   useEffect(() => {
@@ -301,14 +308,14 @@ function App() {
             </button>
             <button className="dark-mode-toggle" onClick={toggleDarkMode}>
               <img 
-                src="/sun.png" 
-                alt="Light mode" 
-                className="theme-icon sun-icon"
-              />
-              <img 
                 src="/moon.png" 
                 alt="Dark mode" 
                 className="theme-icon moon-icon"
+              />
+              <img 
+                src="/sun.png" 
+                alt="Light mode" 
+                className="theme-icon sun-icon"
               />
             </button>
           </div>
