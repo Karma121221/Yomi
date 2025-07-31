@@ -1,7 +1,0 @@
-\Visual JP\backend\requirements.txt
-flask==2.3.3
-flask-cors==4.0.0
-azure-cognitiveservices-vision-computervision==0.9.0
-pykakasi==2.2.1
-requests==2.31.0
-python-dotenv==1.0.0
