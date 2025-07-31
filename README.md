@@ -85,7 +85,7 @@ Visit the live application at: [Vercel](https://yomi-kata.vercel.app/)
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/Karma121221/Yomi.git
 cd Yomi
 ```
 
