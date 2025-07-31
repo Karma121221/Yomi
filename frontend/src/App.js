@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
+import { extractKanji, fetchKanjiInfo } from './utils/kanjiUtils';
+import { handlePlayAudio } from './utils/audioUtils';
+import { renderFuriganaText } from './utils/furiganaUtils';
+import { renderKanjiCard } from './utils/kanjiCardUtils';
 
 const API_BASE_URL = 'http://localhost:5000';
 
@@ -11,9 +15,18 @@ function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
-  const [playingAudio, setPlayingAudio] = useState(null); // Track which audio is playing
-  const [audioLoadingStates, setAudioLoadingStates] = useState({}); // Track loading states for each line
+  const [playingAudio, setPlayingAudio] = useState(null);
+  const [audioLoadingStates, setAudioLoadingStates] = useState({});
+  
+  // Sidebar states
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [kanjiList, setKanjiList] = useState([]);
+  const [kanjiData, setKanjiData] = useState({});
+  const [kanjiLoading, setKanjiLoading] = useState({});
 
+  // Add sorting state
+  const [kanjiSortOption, setKanjiSortOption] = useState('chronological');
+  
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDarkMode);
@@ -27,10 +40,92 @@ function App() {
     }
   }, [darkMode]);
 
+  // Extract kanji when result changes
+  useEffect(() => {
+    if (result && result.original_text) {
+      const extractedKanji = extractKanji(result.original_text);
+      setKanjiList(extractedKanji);
+      
+      // Fetch data for each kanji
+      extractedKanji.forEach(kanji => {
+        if (!kanjiData[kanji]) {
+          loadKanjiInfo(kanji);
+        }
+      });
+    }
+  }, [result]);
+
+  // Function to sort kanji based on selected option
+  const getSortedKanjiList = () => {
+    const kanjiWithInfo = kanjiList.map(kanji => ({
+      char: kanji,
+      data: kanjiData[kanji]
+    }));
+
+    switch (kanjiSortOption) {
+      case 'jlpt-easy':
+        return kanjiWithInfo.sort((a, b) => {
+          const aJlpt = a.data?.data?.jlpt || 0;
+          const bJlpt = b.data?.data?.jlpt || 0;
+          return bJlpt - aJlpt; // N5 (easiest) to N1 (hardest)
+        }).map(item => item.char);
+        
+      case 'jlpt-hard':
+        return kanjiWithInfo.sort((a, b) => {
+          const aJlpt = a.data?.data?.jlpt || 0;
+          const bJlpt = b.data?.data?.jlpt || 0;
+          return aJlpt - bJlpt; // N1 (hardest) to N5 (easiest)
+        }).map(item => item.char);
+        
+      case 'stroke-asc':
+        return kanjiWithInfo.sort((a, b) => {
+          const aStrokes = a.data?.data?.stroke_count || 0;
+          const bStrokes = b.data?.data?.stroke_count || 0;
+          return aStrokes - bStrokes;
+        }).map(item => item.char);
+        
+      case 'stroke-desc':
+        return kanjiWithInfo.sort((a, b) => {
+          const aStrokes = a.data?.data?.stroke_count || 0;
+          const bStrokes = b.data?.data?.stroke_count || 0;
+          return bStrokes - aStrokes;
+        }).map(item => item.char);
+        
+      case 'chronological':
+      default:
+        return kanjiList; // Keep original order
+    }
+  };
+
+  const loadKanjiInfo = async (kanji) => {
+    if (kanjiData[kanji] || kanjiLoading[kanji]) return;
+    
+    setKanjiLoading(prev => ({ ...prev, [kanji]: true }));
+    
+    try {
+      const result = await fetchKanjiInfo(kanji);
+      setKanjiData(prev => ({ 
+        ...prev, 
+        [kanji]: result 
+      }));
+    } catch (error) {
+      setKanjiData(prev => ({ 
+        ...prev, 
+        [kanji]: { success: false, error: error.message } 
+      }));
+    } finally {
+      setKanjiLoading(prev => ({ ...prev, [kanji]: false }));
+    }
+  };
+
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode;
     setDarkMode(newDarkMode);
     localStorage.setItem('darkMode', newDarkMode.toString());
+  };
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
   };
 
   const handleFileSelect = (event) => {
@@ -40,6 +135,10 @@ function App() {
       setPreviewUrl(URL.createObjectURL(file));
       setResult(null);
       setError(null);
+      // Reset kanji data when new file is selected
+      setKanjiList([]);
+      setKanjiData({});
+      setSidebarOpen(false);
     }
   };
 
@@ -70,64 +169,8 @@ function App() {
     }
   };
 
-  const handlePlayAudio = async (text, lineKey) => {
-    try {
-      // Stop any currently playing audio
-      if (playingAudio) {
-        playingAudio.pause();
-        setPlayingAudio(null);
-      }
-
-      // Set loading state for this specific line
-      setAudioLoadingStates(prev => ({ ...prev, [lineKey]: true }));
-
-      const response = await axios.post(`${API_BASE_URL}/api/tts`, {
-        text: text
-      }, {
-        responseType: 'blob'
-      });
-
-      // Create audio blob and play
-      const audioBlob = new Blob([response.data], { type: 'audio/mpeg' });
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      
-      audio.onended = () => {
-        setPlayingAudio(null);
-        URL.revokeObjectURL(audioUrl);
-      };
-
-      audio.onerror = () => {
-        setPlayingAudio(null);
-        URL.revokeObjectURL(audioUrl);
-        console.error('Audio playback failed');
-      };
-
-      setPlayingAudio(audio);
-      await audio.play();
-
-    } catch (error) {
-      console.error('TTS request failed:', error);
-      // Could add user notification here
-    } finally {
-      // Clear loading state for this line
-      setAudioLoadingStates(prev => ({ ...prev, [lineKey]: false }));
-    }
-  };
-
-  const renderFuriganaText = (parts) => {
-    return parts.map((part, index) => {
-      if (part.type === 'kanji' && part.reading) {
-        return (
-          <ruby key={index} className="furigana-ruby">
-            {part.text}
-            <rt className="furigana-rt">{part.reading}</rt>
-          </ruby>
-        );
-      } else {
-        return <span key={index}>{part.text}</span>;
-      }
-    });
+  const handlePlayAudioWrapper = async (text, lineKey) => {
+    await handlePlayAudio(text, lineKey, playingAudio, setPlayingAudio, audioLoadingStates, setAudioLoadingStates);
   };
 
   return (
@@ -141,20 +184,71 @@ function App() {
               <rt className="furigana-rt">かた</rt>
             </ruby>
           </h1>
-          <button className="dark-mode-toggle" onClick={toggleDarkMode}>
-            <img 
-              src="/sun.png" 
-              alt="Light mode" 
-              className="theme-icon sun-icon"
-            />
-            <img 
-              src="/moon.png" 
-              alt="Dark mode" 
-              className="theme-icon moon-icon"
-            />
-          </button>
+          <div className="navbar-controls">
+            <button className="sidebar-toggle" onClick={toggleSidebar}>
+              <svg className="kanji-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M4,6H20V8H4V6M4,11H20V13H4V11M4,16H20V18H4V16Z"/>
+              </svg>
+              {kanjiList.length > 0 && (
+                <span className="kanji-count">{kanjiList.length}</span>
+              )}
+            </button>
+            <button className="dark-mode-toggle" onClick={toggleDarkMode}>
+              <img 
+                src="/sun.png" 
+                alt="Light mode" 
+                className="theme-icon sun-icon"
+              />
+              <img 
+                src="/moon.png" 
+                alt="Dark mode" 
+                className="theme-icon moon-icon"
+              />
+            </button>
+          </div>
         </div>
       </nav>
+
+      {/* Sidebar */}
+      <div className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
+        <div className="sidebar-header">
+          <h3>Kanji Information</h3>
+          <button className="sidebar-close" onClick={toggleSidebar}>
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+            </svg>
+          </button>
+        </div>
+        <div className="sidebar-content">
+          {kanjiList.length === 0 ? (
+            <p className="no-kanji">No kanji found in extracted text.</p>
+          ) : (
+            <>
+              <div className="kanji-sort-controls">
+                <label htmlFor="kanji-sort">Sort by:</label>
+                <select 
+                  id="kanji-sort"
+                  value={kanjiSortOption} 
+                  onChange={(e) => setKanjiSortOption(e.target.value)}
+                  className="kanji-sort-select"
+                >
+                  <option value="chronological">Chronological Order</option>
+                  <option value="jlpt-easy">JLPT Level (Easy to Hard)</option>
+                  <option value="jlpt-hard">JLPT Level (Hard to Easy)</option>
+                  <option value="stroke-asc">Stroke Count (Less to More)</option>
+                  <option value="stroke-desc">Stroke Count (More to Less)</option>
+                </select>
+              </div>
+              <div className="kanji-grid">
+                {getSortedKanjiList().map(kanji => renderKanjiCard(kanji, kanjiData, kanjiLoading))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Sidebar overlay */}
+      {sidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
 
       <main className="app-main">
         <div className="upload-section">
@@ -215,29 +309,68 @@ function App() {
             </div>
 
             <div className="result-section">
-              <h3>Text with Furigana</h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h3>Text with Furigana</h3>
+                <button 
+                  className="sidebar-toggle-inline"
+                  onClick={toggleSidebar}
+                  style={{
+                    background: 'var(--accent-blue)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 16px',
+                    fontSize: '0.9em',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  <svg className="kanji-icon" viewBox="0 0 24 24" fill="currentColor" style={{ width: '18px', height: '18px' }}>
+                    <path d="M4,6H20V8H4V6M4,11H20V13H4V11M4,16H20V18H4V16Z"/>
+                  </svg>
+                  Show Kanji List
+                  <span className="kanji-count-inline" style={{
+                    background: 'rgba(255, 255, 255, 0.3)',
+                    color: 'white',
+                    fontSize: '0.8em',
+                    fontWeight: '600',
+                    padding: '2px 6px',
+                    borderRadius: '10px',
+                    minWidth: '18px',
+                    textAlign: 'center',
+                    marginLeft: '4px'
+                  }}>
+                    {kanjiList.length}
+                  </span>
+                </button>
+              </div>
               <div className="furigana-container">
                 {result.pages.map((page, pageIndex) => (
                   <div key={pageIndex} className="page-container">
                     <h4>Page {page.page_number}</h4>
-                    {page.lines.map((line, lineIndex) => {
-                      // Determine confidence level for coloring
-                      const confidenceLevel = line.confidence >= 0.8 ? 'high' : 
-                                            line.confidence >= 0.6 ? 'medium' : 'low';
+                    {page.lines.map((sentence, sentenceIndex) => {
+                      const confidenceLevel = sentence.confidence >= 0.8 ? 'high' : 
+                                            sentence.confidence >= 0.6 ? 'medium' : 'low';
                       
-                      // Create unique key for this line
-                      const lineKey = `page-${pageIndex}-line-${lineIndex}`;
+                      const lineKey = `page-${pageIndex}-sentence-${sentenceIndex}`;
                       const isLoadingAudio = audioLoadingStates[lineKey];
                       
                       return (
-                        <div key={lineIndex} className="line-container">
+                        <div key={sentenceIndex} className="line-container sentence-container">
+                          <div className="sentence-number">
+                            Sentence {sentenceIndex + 1}
+                          </div>
                           <div className="line-content">
                             <div className="furigana-line">
-                              {renderFuriganaText(line.parts)}
+                              {renderFuriganaText(sentence.parts)}
                             </div>
                             <button
                               className="listen-button"
-                              onClick={() => handlePlayAudio(line.original, lineKey)}
+                              onClick={() => handlePlayAudioWrapper(sentence.original, lineKey)}
                               disabled={isLoadingAudio}
                               title="Listen to pronunciation"
                             >
@@ -251,7 +384,7 @@ function App() {
                             </button>
                           </div>
                           <div className={`confidence-score confidence-${confidenceLevel}`}>
-                            Confidence: {(line.confidence * 100).toFixed(1)}%
+                            Confidence: {(sentence.confidence * 100).toFixed(1)}%
                           </div>
                         </div>
                       );
