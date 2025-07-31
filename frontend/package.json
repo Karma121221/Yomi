@@ -2,6 +2,14 @@
   "name": "yomi-frontend",
   "version": "0.1.0",
   "private": true,
+  "description": "Extract Japanese text from images and generate furigana readings instantly",
+  "keywords": [
+    "japanese",
+    "furigana",
+    "ocr",
+    "text-extraction",
+    "language-learning"
+  ],
   "dependencies": {
     "@vercel/analytics": "^1.5.0",
     "@vercel/speed-insights": "^1.2.0",
