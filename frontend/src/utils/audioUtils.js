@@ -13,7 +13,7 @@ export const handlePlayAudio = async (text, lineKey, playingAudio, setPlayingAud
 
     setAudioLoadingStates(prev => ({ ...prev, [lineKey]: true }));
 
-    const response = await axios.post(`${API_BASE_URL}/api/tts`, {
+    const response = await axios.post(API_URL, {
       text: text
     }, {
       responseType: 'blob'
