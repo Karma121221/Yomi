@@ -47,15 +47,15 @@ Visit the live application at: [Vercel](https://yomi-kata.vercel.app/)
 
 ## 📸 Screenshots
 
-![Alt text](screenshots\1.png)
+![Main Interface](screenshots/1.png)
 
-![Alt text](screenshots\2.png)
+![Furigana Display](screenshots/2.png)
 
-![Alt text](screenshots\3.png)
+![Kanji Information](screenshots/3.png)
 
-![Alt text](screenshots\4.png)
+![Audio Features](screenshots/4.png)
 
-![Alt text](screenshots\5.png)
+![Mobile View](screenshots/5.png)
 
 ## 🛠️ Technology Stack
 
