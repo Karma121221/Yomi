@@ -5,6 +5,8 @@ import { extractKanji, fetchKanjiInfo } from './utils/kanjiUtils';
 import { handlePlayAudio } from './utils/audioUtils';
 import { renderFuriganaText } from './utils/furiganaUtils';
 import { renderKanjiCard } from './utils/kanjiCardUtils';
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? process.env.REACT_APP_API_URL || '' 
@@ -21,6 +23,9 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [playingAudio, setPlayingAudio] = useState(null);
   const [audioLoadingStates, setAudioLoadingStates] = useState({});
+  
+  // Add notification state
+  const [showNotification, setShowNotification] = useState(false);
   
   // Sidebar states
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -209,7 +214,16 @@ function App() {
 
       setResult(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || 'An error occurred while processing the input');
+      const errorMessage = err.response?.data?.error || 'An error occurred while processing the input';
+      setError(errorMessage);
+      
+      // Show notification popup when there's an error
+      setShowNotification(true);
+      
+      // Auto-hide notification after 8 seconds
+      setTimeout(() => {
+        setShowNotification(false);
+      }, 8000);
     } finally {
       setLoading(false);
     }
@@ -221,6 +235,52 @@ function App() {
 
   return (
     <div className="App">
+      {/* Notification Popup */}
+      {showNotification && (
+        <div className="notification-overlay">
+          <div className="notification-popup">
+            <div className="notification-header">
+              <svg className="notification-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,2L13.09,8.26L22,9L13.09,9.74L12,16L10.91,9.74L2,9L10.91,8.26L12,2M12,21C7.03,21 3,16.97 3,12C3,7.03 7.03,3 12,3C16.97,3 21,7.03 21,12C21,16.97 16.97,21 12,21M12,19A7,7 0 0,0 19,12A7,7 0 0,0 12,5A7,7 0 0,0 5,12A7,7 0 0,0 12,19Z"/>
+              </svg>
+              <h3>Service Starting Up</h3>
+              <button 
+                className="notification-close"
+                onClick={() => setShowNotification(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="notification-content">
+              <p>
+                If you're experiencing errors, our backend service might be starting up. 
+                This is normal for Render's free tier - services sleep after inactivity.
+              </p>
+              <p>
+                <strong>Please wait 30-60 seconds and try again.</strong>
+              </p>
+              <div className="notification-actions">
+                <button 
+                  className="notification-button primary"
+                  onClick={() => {
+                    setShowNotification(false);
+                    setTimeout(() => handleUpload(), 1000);
+                  }}
+                >
+                  Retry Now
+                </button>
+                <button 
+                  className="notification-button secondary"
+                  onClick={() => setShowNotification(false)}
+                >
+                  Got It
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <nav className="navbar">
         <div className="navbar-container">
           <h1 className="navbar-brand">
@@ -526,6 +586,10 @@ function App() {
           </div>
         )}
       </main>
+
+      {/* Add these components at the end of your return statement */}
+      <Analytics />
+      <SpeedInsights />
     </div>
   );
 }
