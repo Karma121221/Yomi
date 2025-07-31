@@ -35,12 +35,6 @@ A modern web application that extracts Japanese text from images using OCR, adds
 ### Translation
 - **English Translation**: Automatic translation of Japanese text to English using Azure Translator
 
-### User Experience
-- **Dark/Light Mode**: Toggle between dark and light themes
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
-- **Confidence Scoring**: OCR confidence indicators for extracted text accuracy
-- **Interactive Sidebar**: Collapsible kanji information panel
-
 ## 🚀 Live Demo
 
 Visit the live application at: [Vercel](https://yomi-kata.vercel.app/)
