@@ -30,4 +30,5 @@ ENV PORT 80
 
 # Run app.py when the container launches
 # Use Gunicorn for a production-ready server
-CMD ["gunicorn", "--workers", "4", "--bind", "0.0.0.0:80", "app:app"]
+# Reduced workers from 4 to 2 to fit within Render's free tier memory limits
+CMD ["gunicorn", "--workers", "2", "--bind", "0.0.0.0:80", "app:app"]
