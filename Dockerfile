@@ -12,6 +12,11 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Fix for mecab-python3 not finding mecabrc.
+# It looks for /usr/local/etc/mecabrc, but apt installs it at /etc/mecabrc.
+# We create a symbolic link to resolve this path issue.
+RUN mkdir -p /usr/local/etc && ln -s /etc/mecabrc /usr/local/etc/mecabrc
+
 # Copy the requirements file into the container
 COPY requirements.txt .
 
