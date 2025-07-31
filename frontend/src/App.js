@@ -52,15 +52,17 @@ function App() {
     if (result && result.original_text) {
       const extractedKanji = extractKanji(result.original_text);
       setKanjiList(extractedKanji);
-      
-      // Fetch data for each kanji
-      extractedKanji.forEach(kanji => {
-        if (!kanjiData[kanji]) {
-          loadKanjiInfo(kanji);
-        }
-      });
     }
   }, [result]);
+
+  // Separate effect to load kanji info when kanjiList changes
+  useEffect(() => {
+    kanjiList.forEach(kanji => {
+      if (!kanjiData[kanji] && !kanjiLoading[kanji]) {
+        loadKanjiInfo(kanji);
+      }
+    });
+  }, [kanjiList]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Function to sort kanji based on selected option
   const getSortedKanjiList = () => {
@@ -524,10 +526,6 @@ function App() {
           </div>
         )}
       </main>
-
-      <footer className="app-footer">
-        <p>Powered by Azure Computer Vision API, pykakasi, and LibreTranslate</p>
-      </footer>
     </div>
   );
 }
