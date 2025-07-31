@@ -10,14 +10,6 @@ from furigana_az import FuriganaGenerator
 import io
 import hashlib
 
-# Add GTTS import
-try:
-    from gtts import gTTS
-    GTTS_AVAILABLE = True
-except ImportError:
-    print("Warning: gTTS not installed. Install with: pip install gtts")
-    GTTS_AVAILABLE = False
-
 app = Flask(__name__)
 CORS(app)
 
@@ -100,6 +92,46 @@ def translate_text(text, source_lang='ja', target_lang='en'):
         print(f"Translation error: {str(e)}")
         return None
 
+def azure_text_to_speech(text):
+    """
+    Convert Japanese text to speech using Azure Speech Services
+    """
+    from dotenv import load_dotenv
+    load_dotenv()
+    
+    endpoint = os.getenv('TTS_AZURE_ENDPOINT')
+    key = os.getenv('TTS_AZURE_KEY')
+    
+    if not endpoint or not key:
+        raise ValueError("Azure TTS endpoint and key must be set in .env file")
+    
+    # Remove trailing slash and construct the URL
+    endpoint = endpoint.rstrip('/')
+    url = f"{endpoint}/cognitiveservices/v1"
+    
+    headers = {
+        'Ocp-Apim-Subscription-Key': key,
+        'Content-Type': 'application/ssml+xml',
+        'X-Microsoft-OutputFormat': 'audio-16khz-32kbitrate-mono-mp3',
+        'User-Agent': 'Visual JP TTS Client'
+    }
+    
+    # SSML format for Japanese text
+    ssml = f"""
+    <speak version='1.0' xml:lang='ja-JP'>
+        <voice xml:lang='ja-JP' xml:gender='Female' name='ja-JP-NanamiNeural'>
+            {text}
+        </voice>
+    </speak>
+    """
+    
+    response = requests.post(url, headers=headers, data=ssml.encode('utf-8'))
+    
+    if response.status_code == 200:
+        return response.content
+    else:
+        raise Exception(f"Azure TTS request failed: {response.status_code} - {response.text}")
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -172,11 +204,8 @@ def health_check():
 @app.route('/api/tts', methods=['POST'])
 def text_to_speech():
     """
-    Convert Japanese text to speech using Google Text-to-Speech
+    Convert Japanese text to speech using Azure Speech Services
     """
-    if not GTTS_AVAILABLE:
-        return jsonify({'error': 'Text-to-speech service not available'}), 500
-    
     try:
         data = request.get_json()
         text = data.get('text', '').strip()
@@ -184,15 +213,14 @@ def text_to_speech():
         if not text:
             return jsonify({'error': 'No text provided'}), 400
         
-        # Create a hash of the text for caching
+        # Generate audio using Azure Speech Services
+        audio_content = azure_text_to_speech(text)
+        
+        # Create a hash of the text for the filename
         text_hash = hashlib.md5(text.encode('utf-8')).hexdigest()
         
-        # Create TTS object
-        tts = gTTS(text=text, lang='ja', slow=False)
-        
-        # Save to a bytes buffer
-        audio_buffer = io.BytesIO()
-        tts.write_to_fp(audio_buffer)
+        # Create audio buffer
+        audio_buffer = io.BytesIO(audio_content)
         audio_buffer.seek(0)
         
         # Return the audio file
@@ -204,7 +232,78 @@ def text_to_speech():
         )
         
     except Exception as e:
+        print(f"TTS generation failed: {str(e)}")
         return jsonify({'error': f'TTS generation failed: {str(e)}'}), 500
+
+@app.route('/api/process-text', methods=['POST'])
+def process_text():
+    """
+    Process Japanese text directly without OCR
+    """
+    try:
+        data = request.get_json()
+        
+        if not data or 'text' not in data:
+            return jsonify({'error': 'No text provided'}), 400
+        
+        text = data['text'].strip()
+        
+        if not text:
+            return jsonify({'error': 'Empty text provided'}), 400
+        
+        # Split text by periods to create separate lines/sentences
+        sentences = []
+        current_sentence = ""
+        
+        for char in text:
+            current_sentence += char
+            # Split on Japanese periods (。) and regular periods (.)
+            if char in ['。', '.']:
+                if current_sentence.strip():
+                    sentences.append(current_sentence.strip())
+                current_sentence = ""
+        
+        # Add any remaining text as the last sentence
+        if current_sentence.strip():
+            sentences.append(current_sentence.strip())
+        
+        # If no periods found, treat the whole text as one sentence
+        if not sentences:
+            sentences = [text]
+        
+        # Process each sentence with furigana
+        processed_lines = []
+        for i, sentence in enumerate(sentences):
+            result = furigana_gen._add_furigana_to_text(sentence)
+            processed_lines.append({
+                'original': sentence,
+                'furigana': result['text'],
+                'parts': result['parts'],
+                'confidence': 1.0
+            })
+        
+        # Translate the complete original text
+        translated_text = translate_text(text, 'ja', 'en')
+        
+        # Create furigana_text by joining all processed sentences
+        furigana_text = ' '.join([line['furigana'] for line in processed_lines])
+        
+        # Format response for frontend
+        response_data = {
+            'success': True,
+            'original_text': text,
+            'furigana_text': furigana_text,
+            'translated_text': translated_text,
+            'pages': [{
+                'page_number': 1,
+                'lines': processed_lines
+            }]
+        }
+        
+        return jsonify(response_data)
+        
+    except Exception as e:
+        return jsonify({'error': f'Processing failed: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

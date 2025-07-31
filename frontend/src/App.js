@@ -6,11 +6,15 @@ import { handlePlayAudio } from './utils/audioUtils';
 import { renderFuriganaText } from './utils/furiganaUtils';
 import { renderKanjiCard } from './utils/kanjiCardUtils';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.REACT_APP_API_URL || '' 
+  : 'http://localhost:5000';
 
 function App() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [pastedText, setPastedText] = useState('');
+  const [inputMode, setInputMode] = useState('file'); // 'file' or 'text'
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
@@ -27,6 +31,9 @@ function App() {
   // Add sorting state
   const [kanjiSortOption, setKanjiSortOption] = useState('chronological');
   
+  // Add furigana display mode state
+  const [showTraditionalFurigana, setShowTraditionalFurigana] = useState(false);
+
   useEffect(() => {
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
     setDarkMode(savedDarkMode);
@@ -135,6 +142,8 @@ function App() {
       setPreviewUrl(URL.createObjectURL(file));
       setResult(null);
       setError(null);
+      setPastedText(''); // Clear pasted text when file is selected
+      setInputMode('file');
       // Reset kanji data when new file is selected
       setKanjiList([]);
       setKanjiData({});
@@ -142,28 +151,63 @@ function App() {
     }
   };
 
+  const handleTextInput = (event) => {
+    const text = event.target.value;
+    setPastedText(text);
+    if (text.trim()) {
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setResult(null);
+      setError(null);
+      setInputMode('text');
+      // Reset kanji data when new text is entered
+      setKanjiList([]);
+      setKanjiData({});
+      setSidebarOpen(false);
+    }
+  };
+
   const handleUpload = async () => {
-    if (!selectedFile) {
+    if (inputMode === 'file' && !selectedFile) {
       setError('Please select an image file');
+      return;
+    }
+    
+    if (inputMode === 'text' && !pastedText.trim()) {
+      setError('Please enter some Japanese text');
       return;
     }
 
     setLoading(true);
     setError(null);
 
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      let response;
+      
+      if (inputMode === 'text') {
+        // Process text directly without OCR
+        response = await axios.post(`${API_BASE_URL}/api/process-text`, {
+          text: pastedText
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      } else {
+        // Process image with OCR
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        
+        response = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      }
 
       setResult(response.data);
     } catch (err) {
-      setError(err.response?.data?.error || 'An error occurred while processing the image');
+      setError(err.response?.data?.error || 'An error occurred while processing the input');
     } finally {
       setLoading(false);
     }
@@ -269,15 +313,42 @@ function App() {
             </label>
           </div>
 
-          {previewUrl && (
+          <div className="input-divider">
+            <span className="divider-text">OR</span>
+          </div>
+
+          <div className="text-input-container">
+            <label htmlFor="text-input" className="text-input-label">
+              Paste Japanese Text
+            </label>
+            <textarea
+              id="text-input"
+              value={pastedText}
+              onChange={handleTextInput}
+              placeholder="Paste your Japanese text here..."
+              className="text-input"
+              rows="4"
+            />
+          </div>
+
+          {(previewUrl || pastedText.trim()) && (
             <div className="preview-container">
-              <img src={previewUrl} alt="Preview" className="image-preview" />
+              {previewUrl && (
+                <img src={previewUrl} alt="Preview" className="image-preview" />
+              )}
+              {pastedText.trim() && (
+                <div className="text-preview">
+                  <h4>Text to Process:</h4>
+                  <div className="preview-text">{pastedText}</div>
+                </div>
+              )}
               <button
                 onClick={handleUpload}
                 disabled={loading}
                 className="upload-button"
               >
-                {loading ? 'Processing...' : 'Extract Text with Furigana'}
+                {loading ? 'Processing...' : 
+                 inputMode === 'text' ? 'Generate Furigana' : 'Extract Text with Furigana'}
               </button>
             </div>
           )}
@@ -286,7 +357,7 @@ function App() {
         {loading && (
           <div className="loading-container">
             <div className="loading-spinner"></div>
-            <p>Processing image and generating furigana...</p>
+            <p>Processing image/text and generating furigana...</p>
           </div>
         )}
 
@@ -351,7 +422,6 @@ function App() {
               <div className="furigana-container">
                 {result.pages.map((page, pageIndex) => (
                   <div key={pageIndex} className="page-container">
-                    <h4>Page {page.page_number}</h4>
                     {page.lines.map((sentence, sentenceIndex) => {
                       const confidenceLevel = sentence.confidence >= 0.8 ? 'high' : 
                                             sentence.confidence >= 0.6 ? 'medium' : 'low';
@@ -395,9 +465,42 @@ function App() {
             </div>
 
             <div className="result-section">
-              <h3>Simple Format</h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                <h3>Simple Format</h3>
+                <button 
+                  className="furigana-toggle-button"
+                  onClick={() => setShowTraditionalFurigana(!showTraditionalFurigana)}
+                  style={{
+                    background: showTraditionalFurigana ? 'var(--accent-green)' : 'var(--accent-blue)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 16px',
+                    fontSize: '0.9em',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  {showTraditionalFurigana ? 'Show Bracket Format' : 'Show Traditional Furigana'}
+                </button>
+              </div>
               <div className="simple-text">
-                {result.furigana_text}
+                {showTraditionalFurigana ? (
+                  <div className="traditional-furigana">
+                    {result.pages.map((page, pageIndex) => (
+                      <div key={pageIndex}>
+                        {page.lines.map((sentence, sentenceIndex) => (
+                          <div key={sentenceIndex} style={{ marginBottom: '12px' }}>
+                            {renderFuriganaText(sentence.parts)}
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  result.furigana_text
+                )}
               </div>
             </div>
 

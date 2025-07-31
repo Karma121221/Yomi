@@ -1,15 +1,34 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# Production builds
+frontend/build/
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Vercel
+.vercel
+
+# IDE
+.vscode/
+.idea/
+
+# OS
 .DS_Store
 Thumbs.db
 
-.env
+# Logs
+*.log
+npm-debug.log*
 
-*.pyc
-__pycache__/
-instance/
-.webassets-cache
-
-.frontend/node_modules/
-node_modules/
-
-.Tesseract/
+# Tesseract OCR
 tesseract/
+tessdata/
+*.traineddata
+tesseract-ocr/
