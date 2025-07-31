@@ -9,6 +9,7 @@ import json
 from furigana_az import FuriganaGenerator
 import io
 import hashlib
+import uuid
 
 app = Flask(__name__)
 CORS(app)
@@ -23,74 +24,53 @@ def allowed_file(filename):
 furigana_gen = FuriganaGenerator()
 
 def translate_text(text, source_lang='ja', target_lang='en'):
-    """
-    Translate text using LibreTranslate API with improved error handling
-    """
+    """Translate text using Azure Translator Service"""
     try:
-        if not text or not text.strip():
+        # Get Azure Translator credentials from environment
+        endpoint = os.getenv('TL_AZURE_ENDPOINT')
+        key = os.getenv('TL_AZURE_KEY')
+        region = "centralindia"  # You may need to adjust this based on your Azure region
+        
+        if not endpoint or not key:
+            print("Azure Translator credentials not found")
             return None
-        
-        text = text.strip()
-        
-        try:
-            mymemory_url = f"https://api.mymemory.translated.net/get?q={requests.utils.quote(text)}&langpair={source_lang}|{target_lang}"
-            response = requests.get(mymemory_url, timeout=10)
             
-            if response.status_code == 200:
-                result = response.json()
-                if result.get('responseStatus') == 200:
-                    translated_text = result['responseData']['translatedText']
-                    if translated_text and translated_text.strip() and translated_text != text:
-                        print(f"MyMemory translation successful: {translated_text[:50]}...")
-                        return translated_text
-        except Exception as e:
-            print(f"MyMemory API error: {e}")
+        # Construct the request
+        path = '/translate'
+        constructed_url = endpoint + path
         
-        libretranslate_urls = [
-            "https://libretranslate.de/api/v1/translate",
-            "https://translate.astian.org/translate"
-        ]
-        
-        data = {
-            'q': text,
-            'source': source_lang,
-            'target': target_lang,
-            'format': 'text'
+        params = {
+            'api-version': '3.0',
+            'from': source_lang,
+            'to': [target_lang]
         }
         
         headers = {
-            'Content-Type': 'application/json',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'Ocp-Apim-Subscription-Key': key,
+            'Ocp-Apim-Subscription-Region': region,
+            'Content-type': 'application/json',
+            'X-ClientTraceId': str(uuid.uuid4())
         }
         
-        for url in libretranslate_urls:
-            try:
-                print(f"Trying translation service: {url}")
-                response = requests.post(url, json=data, headers=headers, timeout=10)
-                
-                print(f"Response status: {response.status_code}")
-                
-                if response.status_code == 200:
-                    try:
-                        result = response.json()
-                        translated_text = result.get('translatedText')
-                        if translated_text and translated_text.strip() and translated_text != text:
-                            print(f"Translation successful: {translated_text[:50]}...")
-                            return translated_text
-                    except json.JSONDecodeError as e:
-                        print(f"JSON decode error for {url}: {e}")
-                        continue
-                        
-            except Exception as e:
-                print(f"Request error for {url}: {e}")
-                continue
+        # Request body
+        body = [{
+            'text': text
+        }]
         
-        print("All translation services failed")
-        return None
+        response = requests.post(constructed_url, params=params, headers=headers, json=body)
+        
+        if response.status_code == 200:
+            result = response.json()
+            if result and len(result) > 0 and 'translations' in result[0]:
+                return result[0]['translations'][0]['text']
+        else:
+            print(f"Azure Translator API error: {response.status_code}")
+            print(f"Response: {response.text}")
             
     except Exception as e:
         print(f"Translation error: {str(e)}")
-        return None
+    
+    return None
 
 def azure_text_to_speech(text):
     """
