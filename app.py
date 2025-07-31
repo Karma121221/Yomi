@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import os
 import tempfile
@@ -134,7 +134,17 @@ def azure_text_to_speech(text):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    """Root endpoint - just return API status instead of trying to render template"""
+    return jsonify({
+        'message': 'Yomi Backend API',
+        'status': 'running',
+        'endpoints': {
+            'health': '/api/health',
+            'upload': '/api/upload',
+            'process_text': '/api/process-text',
+            'tts': '/api/tts'
+        }
+    })
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
