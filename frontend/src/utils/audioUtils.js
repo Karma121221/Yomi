@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://yomi-backend.onrender.com/api/tts'
+  : 'http://localhost:5000/api/tts';
 
 export const handlePlayAudio = async (text, lineKey, playingAudio, setPlayingAudio, audioLoadingStates, setAudioLoadingStates) => {
   try {
