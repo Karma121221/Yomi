@@ -35,9 +35,9 @@ A modern web application that extracts Japanese text from images using OCR, adds
 ### Translation
 - **English Translation**: Automatic translation of Japanese text to English using Azure Translator
 
-## 🚀 Live Demo
+## 🚀 Live Application
 
-Visit the live application at: [Vercel](https://yomi-kata.vercel.app/)
+Visit the live application at: [Yomi方](https://yomi-kata.vercel.app/)
 
 ## 📸 Screenshots
 
