@@ -297,21 +297,28 @@ class AuthManager:
                         'char': kanji_char
                     }
             
+            # Calculate new kanji count before update
+            new_count = len([k for k in kanji_list if k['char'] not in user.get('kanji_collection', {})])
+            
             # Update user's kanji collection
             result = self.users_collection.update_one(
                 {'_id': ObjectId(user_id)},
                 {'$set': {'kanji_collection': existing_kanji}}
             )
             
-            if result.modified_count > 0:
-                new_count = len([k for k in kanji_list if k['char'] not in user.get('kanji_collection', {})])
+            # Always return success, whether new kanji were added or all were duplicates
+            if new_count > 0:
                 return {
                     'success': True, 
                     'message': f'Successfully saved {new_count} new kanji to collection',
                     'total_kanji': len(existing_kanji)
                 }, 200
             else:
-                return {'success': False, 'message': 'Failed to save kanji'}, 400
+                return {
+                    'success': True, 
+                    'message': 'Kanji successfully added to collection',
+                    'total_kanji': len(existing_kanji)
+                }, 200
                 
         except Exception as e:
             print(f"Save kanji error: {e}")
@@ -374,4 +381,39 @@ class AuthManager:
                 
         except Exception as e:
             print(f"Remove kanji error: {e}")
+            return {'success': False, 'message': 'Internal server error'}, 500
+
+    def update_user_profile(self, user_id, full_name, username):
+        """Update user profile information"""
+        try:
+            if self.users_collection is None:
+                return {'success': False, 'message': 'Database connection failed'}, 500
+            
+            from bson import ObjectId
+            
+            # Check if username is already taken by another user
+            existing_user = self.users_collection.find_one({
+                'username': username,
+                '_id': {'$ne': ObjectId(user_id)}
+            })
+            
+            if existing_user:
+                return {'success': False, 'message': 'Username already taken'}, 400
+            
+            # Update user profile
+            result = self.users_collection.update_one(
+                {'_id': ObjectId(user_id)},
+                {'$set': {
+                    'full_name': full_name,
+                    'username': username
+                }}
+            )
+            
+            if result.modified_count > 0:
+                return {'success': True, 'message': 'Profile updated successfully'}, 200
+            else:
+                return {'success': False, 'message': 'No changes made'}, 400
+                
+        except Exception as e:
+            print(f"Update profile error: {e}")
             return {'success': False, 'message': 'Internal server error'}, 500

@@ -173,6 +173,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateUserProfile = (profileData) => {
+    setUser(prev => ({
+      ...prev,
+      ...profileData
+    }));
+  };
+
   const value = {
     user,
     token,
@@ -181,6 +188,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateUserProgress,
+    updateUserProfile,
     isAuthenticated: !!user,
   };
 

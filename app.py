@@ -355,6 +355,25 @@ def verify_token():
     except Exception as e:
         return jsonify({'success': False, 'message': 'Token invalid'}), 401
 
+@app.route('/api/update-profile', methods=['POST'])
+@jwt_required()
+def update_profile():
+    """Update user profile information"""
+    try:
+        user_id = get_jwt_identity()
+        data = request.get_json()
+        
+        full_name = data.get('fullName', '').strip()
+        username = data.get('username', '').strip()
+        
+        if not full_name or not username:
+            return jsonify({'success': False, 'message': 'Full name and username are required'}), 400
+        
+        result, status_code = auth_manager.update_user_profile(user_id, full_name, username)
+        return jsonify(result), status_code
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
 # Kanji Collection Routes
 @app.route('/api/kanji/save', methods=['POST'])
 @jwt_required()
