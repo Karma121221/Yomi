@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
+from flask_jwt_extended import jwt_required, get_jwt_identity
 import os
 import tempfile
 from werkzeug.utils import secure_filename
@@ -10,9 +11,13 @@ from furigana_az import FuriganaGenerator
 import io
 import hashlib
 import uuid
+from auth import AuthManager
 
 app = Flask(__name__)
 CORS(app)
+
+# Initialize authentication
+auth_manager = AuthManager(app)
 
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'}
@@ -294,6 +299,61 @@ def process_text():
         
     except Exception as e:
         return jsonify({'error': f'Processing failed: {str(e)}'}), 500
+
+# Authentication routes
+@app.route('/api/auth/register', methods=['POST'])
+def register():
+    """Register a new user"""
+    try:
+        data = request.get_json()
+        result, status_code = auth_manager.register_user(data)
+        return jsonify(result), status_code
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/auth/login', methods=['POST'])
+def login():
+    """Login user"""
+    try:
+        data = request.get_json()
+        result, status_code = auth_manager.login_user(data)
+        return jsonify(result), status_code
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/auth/profile', methods=['GET'])
+@jwt_required()
+def get_profile():
+    """Get user profile"""
+    try:
+        user_id = get_jwt_identity()
+        result, status_code = auth_manager.get_user_profile(user_id)
+        return jsonify(result), status_code
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/auth/profile/progress', methods=['PUT'])
+@jwt_required()
+def update_progress():
+    """Update user study progress"""
+    try:
+        user_id = get_jwt_identity()
+        data = request.get_json()
+        progress_data = data.get('progress', {})
+        result, status_code = auth_manager.update_user_progress(user_id, progress_data)
+        return jsonify(result), status_code
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/auth/verify-token', methods=['GET'])
+@jwt_required()
+def verify_token():
+    """Verify if token is valid"""
+    try:
+        user_id = get_jwt_identity()
+        return jsonify({'success': True, 'user_id': user_id}), 200
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Token invalid'}), 401
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
