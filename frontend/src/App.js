@@ -334,11 +334,6 @@ function AppContent() {
         </defs>
       </svg>
 
-      {/* Dashboard Page */}
-      {currentPage === 'dashboard' && (
-        <Dashboard onClose={() => setCurrentPage('main')} />
-      )}
-
       {/* Main Application - only show when on main page */}
       {currentPage === 'main' && (
         <>

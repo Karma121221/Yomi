@@ -41,8 +41,11 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  position: relative;
+  position: fixed;
+  top: 24px;
+  right: 32px;
   z-index: 10002;
+  box-shadow: var(--shadow);
 }
 
 .dashboard-close:hover {
@@ -205,7 +208,7 @@
 }
 
 .dashboard-close:hover {
-  background: var(--error-color);
+  background: var(--accent-red);
   color: white;
 }
 
@@ -218,7 +221,7 @@
   flex: 1;
   padding: 32px;
   overflow-y: auto;
-  background: var(--background-secondary);
+  background: var(--bg-secondary);
   position: relative;
 }
 
@@ -235,7 +238,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid var(--border-color);
-  border-top: 3px solid var(--primary-color);
+  border-top: 3px solid var(--accent-blue);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 16px;
@@ -292,17 +295,17 @@
 }
 
 .stat-item {
-  background: var(--card-bg);
+  background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 24px 32px;
   text-align: center;
-  box-shadow: var(--shadow-small);
+  box-shadow: var(--shadow);
 }
 
 .stat-number {
   display: block;
-  color: var(--primary-color);
+  color: var(--accent-blue);
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 8px;
@@ -323,11 +326,11 @@
 }
 
 .saved-kanji-card {
-  background: var(--card-bg);
+  background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: var(--shadow-small);
+  box-shadow: var(--shadow);
   position: relative;
   display: flex;
   align-items: center;
@@ -347,12 +350,12 @@
 .kanji-character {
   font-size: 48px;
   font-weight: 600;
-  color: var(--primary-color);
+  color: var(--accent-blue);
   line-height: 1;
 }
 
 .remove-kanji-btn {
-  background: var(--hover-bg);
+  background: var(--bg-tertiary);
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
@@ -368,7 +371,7 @@
 }
 
 .remove-kanji-btn:hover {
-  background: var(--error-color);
+  background: var(--accent-red);
   color: white;
 }
 
@@ -403,7 +406,7 @@
   color: var(--text-primary);
   font-size: 16px;
   line-height: 1.4;
-  background: var(--background-secondary);
+  background: var(--bg-secondary);
   padding: 8px 12px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -432,7 +435,7 @@
 .reading-value {
   color: var(--text-primary);
   font-size: 14px;
-  background: var(--background-secondary);
+  background: var(--bg-secondary);
   padding: 6px 10px;
   border-radius: 6px;
   border: 1px solid var(--border-color);
@@ -443,8 +446,8 @@
 }
 
 .meaning-value {
-  background: var(--primary-light);
-  color: var(--primary-color);
+  background: var(--bg-tertiary);
+  color: var(--accent-blue);
   font-weight: 500;
 }
 
@@ -459,7 +462,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--background-secondary);
+  background: var(--bg-secondary);
   padding: 6px 12px;
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -540,5 +543,16 @@
   .remove-kanji-btn {
     position: static;
     margin-left: auto;
+  }
+  
+  .dashboard-close {
+    top: 16px;
+    right: 16px;
+    padding: 10px;
+  }
+  
+  .dashboard-close svg {
+    width: 18px;
+    height: 18px;
   }
 }

@@ -587,9 +587,22 @@ body.dark-mode .sentence-container {
   }
 }
 
-/* Smooth transitions for dark mode */
-* {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+/* Optimized transitions for dark mode - only apply to specific elements */
+body,
+.App,
+.navbar,
+.main-content,
+.sidebar,
+.kanji-result-card,
+.saved-kanji-card,
+.text-display,
+.furigana-line,
+.profile-dropdown-content,
+.dashboard-page,
+.dashboard-header,
+.dashboard-content,
+.profile-editor-modal {
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 @keyframes gradientShift {
