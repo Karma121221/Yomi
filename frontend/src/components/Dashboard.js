@@ -6,6 +6,7 @@ const Dashboard = ({ onClose }) => {
   const { token } = useAuth();
   const [savedKanji, setSavedKanji] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState('default');
 
   const API_BASE_URL = process.env.NODE_ENV === 'production' 
     ? process.env.REACT_APP_API_URL || '' 
@@ -54,6 +55,41 @@ const Dashboard = ({ onClose }) => {
     }
   };
 
+  const sortKanji = (kanji, sortType) => {
+    const sorted = [...kanji];
+    
+    switch (sortType) {
+      case 'jlpt-easy':
+        return sorted.sort((a, b) => {
+          const aJlpt = a.data?.success ? (a.data.data.jlpt || 99) : 99;
+          const bJlpt = b.data?.success ? (b.data.data.jlpt || 99) : 99;
+          return aJlpt - bJlpt; // N5 (5) to N1 (1), so ascending
+        });
+      case 'jlpt-hard':
+        return sorted.sort((a, b) => {
+          const aJlpt = a.data?.success ? (a.data.data.jlpt || 0) : 0;
+          const bJlpt = b.data?.success ? (b.data.data.jlpt || 0) : 0;
+          return bJlpt - aJlpt; // N1 (1) to N5 (5), so descending
+        });
+      case 'strokes-less':
+        return sorted.sort((a, b) => {
+          const aStrokes = a.data?.success ? (a.data.data.stroke_count || 999) : 999;
+          const bStrokes = b.data?.success ? (b.data.data.stroke_count || 999) : 999;
+          return aStrokes - bStrokes;
+        });
+      case 'strokes-more':
+        return sorted.sort((a, b) => {
+          const aStrokes = a.data?.success ? (a.data.data.stroke_count || 0) : 0;
+          const bStrokes = b.data?.success ? (b.data.data.stroke_count || 0) : 0;
+          return bStrokes - aStrokes;
+        });
+      default:
+        return sorted;
+    }
+  };
+
+  const sortedKanji = sortKanji(savedKanji, sortBy);
+
   return (
     <div className="dashboard-page">
       <div className="dashboard-header">
@@ -93,8 +129,24 @@ const Dashboard = ({ onClose }) => {
               </div>
             </div>
             
+            <div className="kanji-sort-controls">
+              <label htmlFor="sort-select">Sort by:</label>
+              <select 
+                id="sort-select"
+                className="kanji-sort-select"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="default">Default Order</option>
+                <option value="jlpt-hard">JLPT Level (Easy to Hard)</option>
+                <option value="jlpt-easy">JLPT Level (Hard to Easy)</option>
+                <option value="strokes-less">Stroke Count (Less to More)</option>
+                <option value="strokes-more">Stroke Count (More to Less)</option>
+              </select>
+            </div>
+            
             <div className="kanji-grid">
-              {savedKanji.map((kanjiInfo) => (
+              {sortedKanji.map((kanjiInfo) => (
                 <div key={kanjiInfo.char} className="saved-kanji-card">
                   <div className="kanji-card-header">
                     <div className="kanji-character">{kanjiInfo.char}</div>
