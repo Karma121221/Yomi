@@ -1,8 +1,9 @@
 import React from 'react';
 
-export const renderKanjiCard = (kanji, kanjiData, kanjiLoading) => {
+export const renderKanjiCard = (kanji, kanjiData, kanjiLoading, selectedKanji = new Set(), onToggleSelection = null) => {
   const data = kanjiData[kanji];
   const isLoading = kanjiLoading[kanji];
+  const isSelected = selectedKanji.has(kanji);
 
   if (isLoading) {
     return (
@@ -28,7 +29,24 @@ export const renderKanjiCard = (kanji, kanjiData, kanjiLoading) => {
   const kanjiInfo = data.data;
 
   return (
-    <div key={kanji} className="kanji-card">
+    <div key={kanji} className={`kanji-card ${isSelected ? 'selected' : ''}`}>
+      {onToggleSelection && (
+        <div className="kanji-checkbox-container">
+          <input
+            type="checkbox"
+            id={`kanji-${kanji}`}
+            checked={isSelected}
+            onChange={() => onToggleSelection(kanji)}
+            className="kanji-checkbox"
+          />
+          <label htmlFor={`kanji-${kanji}`} className="kanji-checkbox-label">
+            <svg viewBox="0 0 24 24" className="check-icon">
+              <path d="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"/>
+            </svg>
+          </label>
+        </div>
+      )}
+      
       <div className="kanji-char">{kanji}</div>
       
       <div className="kanji-info">

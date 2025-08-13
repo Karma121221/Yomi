@@ -355,5 +355,51 @@ def verify_token():
     except Exception as e:
         return jsonify({'success': False, 'message': 'Token invalid'}), 401
 
+# Kanji Collection Routes
+@app.route('/api/kanji/save', methods=['POST'])
+@jwt_required()
+def save_kanji():
+    """Save selected kanji to user's collection"""
+    try:
+        user_id = get_jwt_identity()
+        data = request.get_json()
+        kanji_list = data.get('kanji', [])
+        
+        if not kanji_list:
+            return jsonify({'success': False, 'message': 'No kanji provided'}), 400
+        
+        result, status_code = auth_manager.save_kanji_to_collection(user_id, kanji_list)
+        return jsonify(result), status_code
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/kanji/saved', methods=['GET'])
+@jwt_required()
+def get_saved_kanji():
+    """Get user's saved kanji collection"""
+    try:
+        user_id = get_jwt_identity()
+        result, status_code = auth_manager.get_user_kanji_collection(user_id)
+        return jsonify(result), status_code
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
+@app.route('/api/kanji/remove', methods=['DELETE'])
+@jwt_required()
+def remove_kanji():
+    """Remove a kanji from user's collection"""
+    try:
+        user_id = get_jwt_identity()
+        data = request.get_json()
+        kanji_char = data.get('kanji')
+        
+        if not kanji_char:
+            return jsonify({'success': False, 'message': 'No kanji provided'}), 400
+        
+        result, status_code = auth_manager.remove_kanji_from_collection(user_id, kanji_char)
+        return jsonify(result), status_code
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Internal server error'}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

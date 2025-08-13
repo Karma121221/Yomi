@@ -270,3 +270,108 @@ class AuthManager:
         except Exception as e:
             print(f"Update progress error: {e}")
             return {'success': False, 'message': 'Internal server error'}, 500
+
+    def save_kanji_to_collection(self, user_id, kanji_list):
+        """Save selected kanji to user's collection"""
+        try:
+            if self.users_collection is None:
+                return {'success': False, 'message': 'Database connection failed'}, 500
+            
+            from bson import ObjectId
+            from datetime import datetime
+            
+            # Get existing user kanji collection
+            user = self.users_collection.find_one({'_id': ObjectId(user_id)})
+            if user is None:
+                return {'success': False, 'message': 'User not found'}, 404
+            
+            existing_kanji = user.get('kanji_collection', {})
+            
+            # Add new kanji with timestamps
+            for kanji_info in kanji_list:
+                kanji_char = kanji_info['char']
+                if kanji_char not in existing_kanji:
+                    existing_kanji[kanji_char] = {
+                        'data': kanji_info.get('data'),
+                        'added_at': datetime.utcnow(),
+                        'char': kanji_char
+                    }
+            
+            # Update user's kanji collection
+            result = self.users_collection.update_one(
+                {'_id': ObjectId(user_id)},
+                {'$set': {'kanji_collection': existing_kanji}}
+            )
+            
+            if result.modified_count > 0:
+                new_count = len([k for k in kanji_list if k['char'] not in user.get('kanji_collection', {})])
+                return {
+                    'success': True, 
+                    'message': f'Successfully saved {new_count} new kanji to collection',
+                    'total_kanji': len(existing_kanji)
+                }, 200
+            else:
+                return {'success': False, 'message': 'Failed to save kanji'}, 400
+                
+        except Exception as e:
+            print(f"Save kanji error: {e}")
+            return {'success': False, 'message': 'Internal server error'}, 500
+
+    def get_user_kanji_collection(self, user_id):
+        """Get user's saved kanji collection"""
+        try:
+            if self.users_collection is None:
+                return {'success': False, 'message': 'Database connection failed'}, 500
+            
+            from bson import ObjectId
+            
+            user = self.users_collection.find_one({'_id': ObjectId(user_id)})
+            if user is None:
+                return {'success': False, 'message': 'User not found'}, 404
+            
+            kanji_collection = user.get('kanji_collection', {})
+            
+            # Convert to list format for frontend
+            kanji_list = []
+            for kanji_char, kanji_info in kanji_collection.items():
+                kanji_list.append({
+                    'char': kanji_char,
+                    'data': kanji_info.get('data'),
+                    'added_at': kanji_info.get('added_at')
+                })
+            
+            # Sort by added_at (newest first)
+            kanji_list.sort(key=lambda x: x.get('added_at', ''), reverse=True)
+            
+            return {
+                'success': True,
+                'kanji': kanji_list,
+                'total_count': len(kanji_list)
+            }, 200
+                
+        except Exception as e:
+            print(f"Get kanji collection error: {e}")
+            return {'success': False, 'message': 'Internal server error'}, 500
+
+    def remove_kanji_from_collection(self, user_id, kanji_char):
+        """Remove a kanji from user's collection"""
+        try:
+            if self.users_collection is None:
+                return {'success': False, 'message': 'Database connection failed'}, 500
+            
+            from bson import ObjectId
+            
+            # Remove kanji from user's collection
+            result = self.users_collection.update_one(
+                {'_id': ObjectId(user_id)},
+                {'$unset': {f'kanji_collection.{kanji_char}': ""}}
+            )
+            
+            if result.modified_count > 0:
+                return {'success': True, 'message': 'Kanji removed from collection'}, 200
+            else:
+                return {'success': False, 'message': 'Kanji not found in collection'}, 404
+                
+        except Exception as e:
+            print(f"Remove kanji error: {e}")
+            return {'success': False, 'message': 'Internal server error'}, 500

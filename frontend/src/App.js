@@ -38,6 +38,64 @@ function AppContent() {
   const [kanjiList, setKanjiList] = useState([]);
   const [kanjiData, setKanjiData] = useState({});
   const [kanjiLoading, setKanjiLoading] = useState({});
+  const [selectedKanji, setSelectedKanji] = useState(new Set());
+
+  // Function to toggle kanji selection
+  const toggleKanjiSelection = (kanji) => {
+    setSelectedKanji(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(kanji)) {
+        newSet.delete(kanji);
+      } else {
+        newSet.add(kanji);
+      }
+      return newSet;
+    });
+  };
+
+  // Function to save selected kanji to user's collection
+  const saveSelectedKanji = async () => {
+    if (selectedKanji.size === 0) {
+      alert('Please select at least one kanji to save.');
+      return;
+    }
+
+    try {
+      const kanjiToSave = Array.from(selectedKanji).map(kanji => ({
+        char: kanji,
+        data: kanjiData[kanji]
+      }));
+
+      const response = await fetch(`${API_BASE_URL}/api/kanji/save`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ kanji: kanjiToSave }),
+      });
+
+      if (response.ok) {
+        alert(`Successfully saved ${selectedKanji.size} kanji to your collection!`);
+        setSelectedKanji(new Set()); // Clear selection
+      } else {
+        throw new Error('Failed to save kanji');
+      }
+    } catch (error) {
+      console.error('Error saving kanji:', error);
+      alert('Failed to save kanji. Please try again.');
+    }
+  };
+
+  // Function to select all kanji
+  const selectAllKanji = () => {
+    setSelectedKanji(new Set(kanjiList));
+  };
+
+  // Function to clear all selections
+  const clearAllSelections = () => {
+    setSelectedKanji(new Set());
+  };
 
   // Add sorting state
   const [kanjiSortOption, setKanjiSortOption] = useState('chronological');
@@ -49,7 +107,7 @@ function AppContent() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
-  const [showDashboard, setShowDashboard] = useState(false);
+  const [currentPage, setCurrentPage] = useState('main'); // 'main' or 'dashboard'
 
   useEffect(() => {
     // Check if user has a saved preference, otherwise default to dark mode
@@ -254,8 +312,16 @@ function AppContent() {
 
   return (
     <div className="App">
-      {/* Notification Popup */}
-      {showNotification && (
+      {/* Dashboard Page */}
+      {currentPage === 'dashboard' && (
+        <Dashboard onClose={() => setCurrentPage('main')} />
+      )}
+
+      {/* Main Application - only show when on main page */}
+      {currentPage === 'main' && (
+        <>
+          {/* Notification Popup */}
+          {showNotification && (
         <div className="notification-overlay">
           <div className="notification-popup">
             <div className="notification-header">
@@ -311,7 +377,7 @@ function AppContent() {
           </h1>
           <div className="navbar-controls">
             {isAuthenticated && (
-              <button className="dashboard-toggle" onClick={() => setShowDashboard(true)}>
+              <button className="dashboard-toggle" onClick={() => setCurrentPage('dashboard')}>
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <path d="M3,3H21V5H3V3M3,7H21V9H3V7M3,11H21V13H3V11M3,15H21V17H3V15M3,19H21V21H3V19Z"/>
                 </svg>
@@ -362,7 +428,7 @@ function AppContent() {
                     onClose={() => setShowUserProfile(false)}
                     onOpenDashboard={() => {
                       setShowUserProfile(false);
-                      setShowDashboard(true);
+                      setCurrentPage('dashboard');
                     }}
                   />
                 )}
@@ -387,6 +453,41 @@ function AppContent() {
             <p className="no-kanji">No kanji found in extracted text.</p>
           ) : (
             <>
+              {isAuthenticated && (
+                <div className="kanji-selection-controls">
+                  <div className="selection-info">
+                    <span className="selection-count">
+                      {selectedKanji.size} of {kanjiList.length} selected
+                    </span>
+                  </div>
+                  <div className="selection-buttons">
+                    <button 
+                      className="select-all-btn"
+                      onClick={selectAllKanji}
+                      disabled={selectedKanji.size === kanjiList.length}
+                    >
+                      Select All
+                    </button>
+                    <button 
+                      className="clear-all-btn"
+                      onClick={clearAllSelections}
+                      disabled={selectedKanji.size === 0}
+                    >
+                      Clear All
+                    </button>
+                    <button 
+                      className="save-selected-btn"
+                      onClick={saveSelectedKanji}
+                      disabled={selectedKanji.size === 0}
+                    >
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3M19,19H5V5H16.17L19,7.83V19M12,12C10.34,12 9,13.34 9,15C9,16.66 10.34,18 12,18C13.66,18 15,16.66 15,15C15,13.34 13.66,12 12,12Z"/>
+                      </svg>
+                      Save to Collection ({selectedKanji.size})
+                    </button>
+                  </div>
+                </div>
+              )}
               <div className="kanji-sort-controls">
                 <label htmlFor="kanji-sort">Sort by:</label>
                 <select 
@@ -403,7 +504,9 @@ function AppContent() {
                 </select>
               </div>
               <div className="kanji-grid">
-                {getSortedKanjiList().map(kanji => renderKanjiCard(kanji, kanjiData, kanjiLoading))}
+                {getSortedKanjiList().map(kanji => 
+                  renderKanjiCard(kanji, kanjiData, kanjiLoading, selectedKanji, toggleKanjiSelection)
+                )}
               </div>
             </>
           )}
@@ -666,10 +769,12 @@ function AppContent() {
           setShowLoginModal(true);
         }}
       />
+        </>
+      )}
 
-      {/* Dashboard Modal */}
-      {showDashboard && (
-        <Dashboard onClose={() => setShowDashboard(false)} />
+      {/* Dashboard Page */}
+      {currentPage === 'dashboard' && (
+        <Dashboard onClose={() => setCurrentPage('main')} />
       )}
     </div>
   );
