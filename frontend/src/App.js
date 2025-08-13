@@ -12,6 +12,7 @@ import LoginModal from './components/auth/LoginModal';
 import RegisterModal from './components/auth/RegisterModal';
 import UserProfile from './components/UserProfile';
 import Dashboard from './components/Dashboard';
+import Settings from './components/Settings';
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? process.env.REACT_APP_API_URL || '' 
@@ -111,6 +112,7 @@ function AppContent() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [currentPage, setCurrentPage] = useState('main'); // 'main' or 'dashboard'
 
   useEffect(() => {
@@ -459,6 +461,7 @@ function AppContent() {
                 {showUserProfile && (
                   <UserProfile 
                     onClose={() => setShowUserProfile(false)}
+                    onOpenSettings={() => setShowSettings(true)}
                   />
                 )}
               </div>
@@ -799,6 +802,11 @@ function AppContent() {
         }}
       />
         </>
+      )}
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <Settings onClose={() => setShowSettings(false)} />
       )}
 
       {/* Dashboard Page */}

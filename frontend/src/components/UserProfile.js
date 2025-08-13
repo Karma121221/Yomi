@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import Settings from './Settings';
 import './UserProfile.css';
 
-const UserProfile = ({ onClose }) => {
+const UserProfile = ({ onClose, onOpenSettings }) => {
   const { user, logout } = useAuth();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -53,7 +51,7 @@ const UserProfile = ({ onClose }) => {
         <button 
           className="profile-menu-item"
           onClick={() => {
-            setShowSettings(true);
+            onOpenSettings();
             onClose();
           }}
         >
@@ -97,10 +95,6 @@ const UserProfile = ({ onClose }) => {
             </div>
           </div>
         </div>
-      )}
-
-      {showSettings && (
-        <Settings onClose={() => setShowSettings(false)} />
       )}
     </div>
   );
