@@ -32,6 +32,8 @@ function AppContent() {
   
   // Add notification state
   const [showNotification, setShowNotification] = useState(false);
+  const [showKanjiNotification, setShowKanjiNotification] = useState(false);
+  const [kanjiNotificationText, setKanjiNotificationText] = useState('');
   
   // Sidebar states
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -76,7 +78,9 @@ function AppContent() {
       });
 
       if (response.ok) {
-        alert(`Successfully saved ${selectedKanji.size} kanji to your collection!`);
+        setKanjiNotificationText(`Successfully saved ${selectedKanji.size} kanji to your collection!`);
+        setShowKanjiNotification(true);
+        setTimeout(() => setShowKanjiNotification(false), 5000);
         setSelectedKanji(new Set()); // Clear selection
       } else {
         throw new Error('Failed to save kanji');
@@ -312,6 +316,22 @@ function AppContent() {
 
   return (
     <div className="App">
+      {/* SVG Gradients for buttons */}
+      <svg width="0" height="0" style={{ position: 'absolute' }}>
+        <defs>
+          <linearGradient id="lightGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#fbfbfb" />
+            <stop offset="50%" stopColor="#6deeff" />
+            <stop offset="100%" stopColor="#a6babb" />
+          </linearGradient>
+          <linearGradient id="darkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ffd700" />
+            <stop offset="50%" stopColor="#ffa500" />
+            <stop offset="100%" stopColor="#ffd700" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       {/* Dashboard Page */}
       {currentPage === 'dashboard' && (
         <Dashboard onClose={() => setCurrentPage('main')} />
@@ -366,6 +386,18 @@ function AppContent() {
         </div>
       )}
 
+          {/* Kanji Save Notification */}
+          {showKanjiNotification && (
+            <div className="kanji-notification">
+              <div className="kanji-notification-content">
+                <svg className="kanji-notification-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
+                </svg>
+                <span>{kanjiNotificationText}</span>
+              </div>
+            </div>
+          )}
+
       <nav className="navbar">
         <div className="navbar-container">
           <h1 className="navbar-brand">
@@ -388,6 +420,7 @@ function AppContent() {
               <svg className="kanji-icon" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M4,6H20V8H4V6M4,11H20V13H4V11M4,16H20V18H4V16Z"/>
               </svg>
+              Kanji List
               {kanjiList.length > 0 && (
                 <span className="kanji-count">{kanjiList.length}</span>
               )}
@@ -426,10 +459,6 @@ function AppContent() {
                 {showUserProfile && (
                   <UserProfile 
                     onClose={() => setShowUserProfile(false)}
-                    onOpenDashboard={() => {
-                      setShowUserProfile(false);
-                      setCurrentPage('dashboard');
-                    }}
                   />
                 )}
               </div>

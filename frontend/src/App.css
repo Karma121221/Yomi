@@ -52,6 +52,19 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* SVG Gradients for icons */
+.App::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.App {
+  position: relative;
+}
+
 .App {
   min-height: 100vh;
   display: flex;
@@ -68,7 +81,7 @@ body {
 }
 
 .navbar-container {
-  max-width: 100%;
+  max-width: 98%;
   margin: 0 auto;
   padding: 12px 20px;
   display: flex;
@@ -167,7 +180,7 @@ body.dark-mode .theme-icon.moon-icon {
 /* Main Content */
 .app-main {
   flex: 1;
-  max-width: 1200px;
+  max-width: 90%;
   margin: 0 auto;
   padding: 40px 20px;
   width: 100%;
@@ -642,46 +655,67 @@ body.dark-mode .sentence-container {
 .navbar-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 /* Sidebar toggle button */
 .sidebar-toggle {
-  background: linear-gradient(135deg, var(--accent-green), #5fd85f);
-  border: none;
+  background: none;
+  border: 1px solid transparent;
   cursor: pointer;
-  padding: 12px 16px;
-  border-radius: 12px;
+  padding: 8px 16px;
+  border-radius: 8px;
   transition: all 0.3s ease;
-  color: white;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   position: relative;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(var(--accent-green-rgb), 0.3);
-  overflow: hidden;
+  font-weight: 500;
+  font-size: 0.9em;
+  height: 36px;
 }
 
-.sidebar-toggle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+/* Light mode - night-like gray gradient for sidebar toggle */
+body:not(.dark-mode) .sidebar-toggle {
+  color: transparent;
+  background: linear-gradient(45deg, #fbfbfb, #6deeff, #a6babb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  border-color: rgba(251, 251, 251, 0.3);
 }
 
-.sidebar-toggle:hover::before {
-  left: 100%;
+body:not(.dark-mode) .sidebar-toggle svg {
+  fill: url(#lightGradient);
+}
+
+/* Dark mode - sun-like yellow gradient for sidebar toggle */
+body.dark-mode .sidebar-toggle {
+  color: transparent;
+  background: linear-gradient(45deg, #ffd700, #ffa500, #ffd700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+body.dark-mode .sidebar-toggle svg {
+  fill: url(#darkGradient);
 }
 
 .sidebar-toggle:hover {
-  background: linear-gradient(135deg, #5fd85f, var(--accent-green));
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(var(--accent-green-rgb), 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body:not(.dark-mode) .sidebar-toggle:hover {
+  border-color: rgba(109, 222, 255, 0.5);
+}
+
+body.dark-mode .sidebar-toggle:hover {
+  border-color: rgba(255, 215, 0, 0.5);
 }
 
 .kanji-icon {
@@ -702,50 +736,158 @@ body.dark-mode .sentence-container {
 
 /* Dashboard button */
 .dashboard-toggle {
-  background: linear-gradient(135deg, var(--accent-blue), #4f9cff);
-  border: none;
+  background: none;
+  border: 1px solid transparent;
   cursor: pointer;
-  padding: 12px 20px;
-  border-radius: 12px;
+  padding: 8px 16px;
+  border-radius: 8px;
   transition: all 0.3s ease;
-  color: white;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.95em;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(var(--accent-blue-rgb), 0.3);
-  position: relative;
-  overflow: hidden;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.9em;
+  height: 36px;
+  margin-right: 12px;
 }
 
-.dashboard-toggle::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+/* Light mode - night-like gray gradient for dashboard toggle */
+body:not(.dark-mode) .dashboard-toggle {
+  color: transparent;
+  background: linear-gradient(45deg, #fbfbfb, #6deeff, #a6babb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  border-color: rgba(251, 251, 251, 0.3);
 }
 
-.dashboard-toggle:hover::before {
-  left: 100%;
+body:not(.dark-mode) .dashboard-toggle svg {
+  fill: url(#lightGradient);
+}
+
+/* Dark mode - sun-like yellow gradient for dashboard toggle */
+body.dark-mode .dashboard-toggle {
+  color: transparent;
+  background: linear-gradient(45deg, #ffd700, #ffa500, #ffd700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+body.dark-mode .dashboard-toggle svg {
+  fill: url(#darkGradient);
 }
 
 .dashboard-toggle:hover {
-  background: linear-gradient(135deg, #4f9cff, var(--accent-blue));
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(var(--accent-blue-rgb), 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body:not(.dark-mode) .dashboard-toggle:hover {
+  border-color: rgba(109, 222, 255, 0.5);
+}
+
+body.dark-mode .dashboard-toggle:hover {
+  border-color: rgba(255, 215, 0, 0.5);
 }
 
 .dashboard-toggle svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
-/* Authentication buttons */
+/* Kanji Save Notification */
+.kanji-notification {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  z-index: 10001;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.kanji-notification-content {
+  background: var(--bg-primary);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 300px;
+  backdrop-filter: blur(10px);
+}
+
+/* Light mode - night-like gray gradient for kanji notification */
+body:not(.dark-mode) .kanji-notification-content {
+  border-image: linear-gradient(45deg, #fbfbfb, #6deeff, #a6babb) 1;
+}
+
+body:not(.dark-mode) .kanji-notification-content span {
+  color: transparent;
+  background: linear-gradient(45deg, #fbfbfb, #6deeff, #a6babb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  font-weight: 600;
+}
+
+body:not(.dark-mode) .kanji-notification-icon {
+  fill: url(#lightGradient);
+}
+
+/* Dark mode - sun-like yellow gradient for kanji notification */
+body.dark-mode .kanji-notification-content {
+  border-image: linear-gradient(45deg, #ffd700, #ffa500, #ffd700) 1;
+}
+
+body.dark-mode .kanji-notification-content span {
+  color: transparent;
+  background: linear-gradient(45deg, #ffd700, #ffa500, #ffd700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  font-weight: 600;
+}
+
+body.dark-mode .kanji-notification-icon {
+  fill: url(#darkGradient);
+}
+
+.kanji-notification-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .kanji-notification {
+    top: 80px;
+    right: 10px;
+    left: 10px;
+  }
+  
+  .kanji-notification-content {
+    min-width: auto;
+    padding: 12px 16px;
+  }
+}
 .auth-buttons {
   display: flex;
   align-items: center;
@@ -1477,4 +1619,94 @@ body.dark-mode .kanji-sort-select {
 .dark-mode .notification-popup {
   background: var(--bg-color);
   border-color: var(--border-color);
+}
+
+/* Kanji Save Notification */
+.kanji-notification {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  z-index: 10001;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.kanji-notification-content {
+  background: var(--bg-primary);
+  border: 2px solid transparent;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 300px;
+  backdrop-filter: blur(10px);
+}
+
+/* Light mode - night-like gray gradient for kanji notification */
+body:not(.dark-mode) .kanji-notification-content {
+  border-image: linear-gradient(45deg, #fbfbfb, #6deeff, #a6babb) 1;
+}
+
+body:not(.dark-mode) .kanji-notification-content span {
+  color: transparent;
+  background: linear-gradient(45deg, #fbfbfb, #6deeff, #a6babb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  font-weight: 600;
+}
+
+body:not(.dark-mode) .kanji-notification-icon {
+  fill: url(#lightGradient);
+}
+
+/* Dark mode - sun-like yellow gradient for kanji notification */
+body.dark-mode .kanji-notification-content {
+  border-image: linear-gradient(45deg, #ffd700, #ffa500, #ffd700) 1;
+}
+
+body.dark-mode .kanji-notification-content span {
+  color: transparent;
+  background: linear-gradient(45deg, #ffd700, #ffa500, #ffd700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  font-weight: 600;
+}
+
+body.dark-mode .kanji-notification-icon {
+  fill: url(#darkGradient);
+}
+
+.kanji-notification-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .kanji-notification {
+    top: 80px;
+    right: 10px;
+    left: 10px;
+  }
+  
+  .kanji-notification-content {
+    min-width: auto;
+    padding: 12px 16px;
+  }
 }
