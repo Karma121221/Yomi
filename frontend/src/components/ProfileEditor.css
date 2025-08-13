@@ -23,7 +23,6 @@
 }
 
 .profile-editor-modal {
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
   border-radius: 20px;
   width: 90%;
   max-width: 450px;
@@ -31,6 +30,16 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
   animation: slideInUp 0.3s ease-out;
   overflow: hidden;
+}
+
+/* Light mode - night-like gray gradient background */
+body:not(.dark-mode) .profile-editor-modal {
+  background: linear-gradient(135deg, #6deeff 0%, #a6babb 50%, #fbfbfb 100%);
+}
+
+/* Dark mode - sun-like yellow gradient background */
+body.dark-mode .profile-editor-modal {
+  background: linear-gradient(135deg, #ffd700 0%, #ffa500 50%, #ffd700 100%);
 }
 
 @keyframes slideInUp {
@@ -56,13 +65,21 @@
   margin: 0;
   font-size: 24px;
   font-weight: 600;
+}
+
+/* Light mode - dark text for visibility */
+body:not(.dark-mode) .profile-editor-header h2 {
+  color: #2c3e50;
+}
+
+/* Dark mode - white text */
+body.dark-mode .profile-editor-header h2 {
   color: white;
 }
 
 .profile-editor-close {
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.8);
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
@@ -72,7 +89,28 @@
   justify-content: center;
 }
 
+/* Light mode - dark color for visibility */
+body:not(.dark-mode) .profile-editor-close {
+  color: rgba(44, 62, 80, 0.8);
+}
+
+/* Dark mode - light color */
+body.dark-mode .profile-editor-close {
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .profile-editor-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Light mode hover */
+body:not(.dark-mode) .profile-editor-close:hover {
+  background: rgba(44, 62, 80, 0.1);
+  color: #2c3e50;
+}
+
+/* Dark mode hover */
+body.dark-mode .profile-editor-close:hover {
   background: rgba(255, 255, 255, 0.1);
   color: white;
 }
@@ -93,8 +131,17 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
+}
+
+/* Light mode - dark text for visibility */
+body:not(.dark-mode) .profile-editor-field label {
+  color: rgba(44, 62, 80, 0.9);
+}
+
+/* Dark mode - light text */
+body.dark-mode .profile-editor-field label {
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .profile-editor-field input {
@@ -102,19 +149,51 @@
   padding: 12px 16px;
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
   font-size: 16px;
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
+/* Light mode - dark text and light background */
+body:not(.dark-mode) .profile-editor-field input {
+  background: rgba(255, 255, 255, 0.8);
+  color: #2c3e50;
+  border-color: rgba(44, 62, 80, 0.2);
+}
+
+/* Dark mode - light text and dark background */
+body.dark-mode .profile-editor-field input {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
 .profile-editor-field input::placeholder {
+  color: rgba(128, 128, 128, 0.7);
+}
+
+/* Light mode placeholder */
+body:not(.dark-mode) .profile-editor-field input::placeholder {
+  color: rgba(44, 62, 80, 0.5);
+}
+
+/* Dark mode placeholder */
+body.dark-mode .profile-editor-field input::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 
 .profile-editor-field input:focus {
   outline: none;
+}
+
+/* Light mode focus */
+body:not(.dark-mode) .profile-editor-field input:focus {
+  border-color: rgba(44, 62, 80, 0.4);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Dark mode focus */
+body.dark-mode .profile-editor-field input:focus {
   border-color: rgba(255, 255, 255, 0.4);
   background: rgba(255, 255, 255, 0.15);
 }
@@ -151,7 +230,31 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
+/* Light mode cancel button */
+body:not(.dark-mode) .profile-editor-cancel {
+  background: rgba(44, 62, 80, 0.1);
+  color: rgba(44, 62, 80, 0.8);
+}
+
+/* Dark mode cancel button */
+body.dark-mode .profile-editor-cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .profile-editor-cancel:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+/* Light mode cancel hover */
+body:not(.dark-mode) .profile-editor-cancel:hover:not(:disabled) {
+  background: rgba(44, 62, 80, 0.15);
+  color: #2c3e50;
+}
+
+/* Dark mode cancel hover */
+body.dark-mode .profile-editor-cancel:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.15);
   color: white;
 }

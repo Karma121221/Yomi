@@ -4,7 +4,7 @@ import './ProfileEditor.css';
 
 const ProfileEditor = ({ onClose }) => {
   const { user, updateUserProfile } = useAuth();
-  const [fullName, setFullName] = useState(user?.fullName || '');
+  const [fullName, setFullName] = useState(user?.full_name || '');
   const [username, setUsername] = useState(user?.username || '');
   const [isLoading, setIsLoading] = useState(false);
   const modalRef = useRef(null);
@@ -46,7 +46,11 @@ const ProfileEditor = ({ onClose }) => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/update-profile', {
+      const API_BASE_URL = process.env.NODE_ENV === 'production' 
+        ? process.env.REACT_APP_API_URL || '' 
+        : 'http://localhost:5000';
+      
+      const response = await fetch(`${API_BASE_URL}/api/update-profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,8 +65,8 @@ const ProfileEditor = ({ onClose }) => {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Update the user context
-        updateUserProfile({ fullName: fullName.trim(), username: username.trim() });
+        // Update the user context with the correct field names
+        updateUserProfile({ full_name: fullName.trim(), username: username.trim() });
         alert('Profile updated successfully!');
         onClose();
       } else {
