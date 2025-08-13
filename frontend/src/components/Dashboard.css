@@ -145,22 +145,6 @@
   box-shadow: var(--shadow);
 }
 
-.stat-number {
-  display: block;
-  color: var(--accent-blue);
-  font-size: 32px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.stat-label {
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
 .kanji-sort-controls {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
@@ -305,7 +289,7 @@
 
 .stat-number {
   display: block;
-  color: var(--accent-blue);
+  color: var(--text-primary);
   font-size: 32px;
   font-weight: 700;
   margin-bottom: 8px;
@@ -350,7 +334,7 @@
 .kanji-character {
   font-size: 48px;
   font-weight: 600;
-  color: var(--accent-blue);
+  color: var(--text-primary);
   line-height: 1;
 }
 
@@ -447,7 +431,7 @@
 
 .meaning-value {
   background: var(--bg-tertiary);
-  color: var(--accent-blue);
+  color: var(--text-primary);
   font-weight: 500;
 }
 

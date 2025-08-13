@@ -74,7 +74,7 @@ body:not(.dark-mode) .profile-editor-header h2 {
 
 /* Dark mode - white text */
 body.dark-mode .profile-editor-header h2 {
-  color: white;
+  color: rgb(0, 0, 0);
 }
 
 .profile-editor-close {
@@ -141,7 +141,7 @@ body:not(.dark-mode) .profile-editor-field label {
 
 /* Dark mode - light text */
 body.dark-mode .profile-editor-field label {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
 }
 
 .profile-editor-field input {
@@ -164,7 +164,7 @@ body:not(.dark-mode) .profile-editor-field input {
 /* Dark mode - light text and dark background */
 body.dark-mode .profile-editor-field input {
   background: rgba(255, 255, 255, 0.1);
-  color: white;
+  color: rgb(0, 0, 0);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
@@ -239,7 +239,7 @@ body:not(.dark-mode) .profile-editor-cancel {
 /* Dark mode cancel button */
 body.dark-mode .profile-editor-cancel {
   background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .profile-editor-cancel:hover:not(:disabled) {
