@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import './Dashboard.css';
+import '../styles/Dashboard.css';
 
 const Dashboard = ({ onClose }) => {
   const { token } = useAuth();

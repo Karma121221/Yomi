@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import './ProfileEditor.css';
+import '../styles/ProfileEditor.css';
 
 const ProfileEditor = ({ onClose }) => {
   const { user, updateUserProfile } = useAuth();

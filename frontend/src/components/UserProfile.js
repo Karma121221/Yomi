@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import './UserProfile.css';
+import '../styles/UserProfile.css';
 
 const UserProfile = ({ onClose, onOpenProfile }) => {
   const { user, logout } = useAuth();

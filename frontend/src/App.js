@@ -3,14 +3,16 @@ import axios from 'axios';
 import './App.css';
 import { extractKanji, fetchKanjiInfo } from './utils/kanjiUtils';
 import { handlePlayAudio } from './utils/audioUtils';
-import { renderFuriganaText } from './utils/furiganaUtils';
-import { renderKanjiCard } from './utils/kanjiCardUtils';
+import Navbar from './components/Navbar';
+import SidebarKanji from './components/SidebarKanji';
+import UploadSection from './components/UploadSection';
+import ResultsView from './components/ResultsView';
+import Notifications from './components/Notifications';
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import LoginModal from './components/auth/LoginModal';
 import RegisterModal from './components/auth/RegisterModal';
-import UserProfile from './components/UserProfile';
 import Dashboard from './components/Dashboard';
 import ProfileEditor from './components/ProfileEditor';
 
@@ -152,47 +154,7 @@ function AppContent() {
     });
   }, [kanjiList]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Function to sort kanji based on selected option
-  const getSortedKanjiList = () => {
-    const kanjiWithInfo = kanjiList.map(kanji => ({
-      char: kanji,
-      data: kanjiData[kanji]
-    }));
-
-    switch (kanjiSortOption) {
-      case 'jlpt-easy':
-        return kanjiWithInfo.sort((a, b) => {
-          const aJlpt = a.data?.data?.jlpt || 0;
-          const bJlpt = b.data?.data?.jlpt || 0;
-          return bJlpt - aJlpt; // N5 (easiest) to N1 (hardest)
-        }).map(item => item.char);
-        
-      case 'jlpt-hard':
-        return kanjiWithInfo.sort((a, b) => {
-          const aJlpt = a.data?.data?.jlpt || 0;
-          const bJlpt = b.data?.data?.jlpt || 0;
-          return aJlpt - bJlpt; // N1 (hardest) to N5 (easiest)
-        }).map(item => item.char);
-        
-      case 'stroke-asc':
-        return kanjiWithInfo.sort((a, b) => {
-          const aStrokes = a.data?.data?.stroke_count || 0;
-          const bStrokes = b.data?.data?.stroke_count || 0;
-          return aStrokes - bStrokes;
-        }).map(item => item.char);
-        
-      case 'stroke-desc':
-        return kanjiWithInfo.sort((a, b) => {
-          const aStrokes = a.data?.data?.stroke_count || 0;
-          const bStrokes = b.data?.data?.stroke_count || 0;
-          return bStrokes - aStrokes;
-        }).map(item => item.char);
-        
-      case 'chronological':
-      default:
-        return kanjiList; // Keep original order
-    }
-  };
+  // Sorting is handled inside SidebarKanji component now.
 
   const loadKanjiInfo = async (kanji) => {
     if (kanjiData[kanji] || kanjiLoading[kanji]) return;
@@ -337,271 +299,57 @@ function AppContent() {
       {/* Main Application - only show when on main page */}
       {currentPage === 'main' && (
         <>
-          {/* Notification Popup */}
-          {showNotification && (
-        <div className="notification-overlay">
-          <div className="notification-popup">
-            <div className="notification-header">
-              <svg className="notification-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12,2L13.09,8.26L22,9L13.09,9.74L12,16L10.91,9.74L2,9L10.91,8.26L12,2M12,21C7.03,21 3,16.97 3,12C3,7.03 7.03,3 12,3C16.97,3 21,7.03 21,12C21,16.97 16.97,21 12,21M12,19A7,7 0 0,0 19,12A7,7 0 0,0 12,5A7,7 0 0,0 5,12A7,7 0 0,0 12,19Z"/>
-              </svg>
-              <h3>Service Starting Up</h3>
-              <button 
-                className="notification-close"
-                onClick={() => setShowNotification(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="notification-content">
-              <p>
-                If you're experiencing errors, our backend service might be starting up. 
-                This is normal for Render's free tier - services sleep after inactivity.
-              </p>
-              <p>
-                <strong>Please wait 30-60 seconds and try again.</strong>
-              </p>
-              <div className="notification-actions">
-                <button 
-                  className="notification-button primary"
-                  onClick={() => {
-                    setShowNotification(false);
-                    setTimeout(() => handleUpload(), 1000);
-                  }}
-                >
-                  Retry Now
-                </button>
-                <button 
-                  className="notification-button secondary"
-                  onClick={() => setShowNotification(false)}
-                >
-                  Got It
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-          {/* Kanji Save Notification */}
-          {showKanjiNotification && (
-            <div className="kanji-notification">
-              <div className="kanji-notification-content">
-                <svg className="kanji-notification-icon" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"/>
-                </svg>
-                <span>{kanjiNotificationText}</span>
-              </div>
-            </div>
-          )}
-
-      <nav className="navbar">
-        <div className="navbar-container">
-          <h1 className="navbar-brand">
-            Yomi 
-            <ruby className="furigana-ruby">
-              方
-              <rt className="furigana-rt">かた</rt>
-            </ruby>
-          </h1>
-          <div className="navbar-controls">
-            {isAuthenticated && (
-              <button className="dashboard-toggle" onClick={() => setCurrentPage('dashboard')}>
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M3,3H21V5H3V3M3,7H21V9H3V7M3,11H21V13H3V11M3,15H21V17H3V15M3,19H21V21H3V19Z"/>
-                </svg>
-                Dashboard
-              </button>
-            )}
-            <button className="sidebar-toggle" onClick={toggleSidebar}>
-              <svg className="kanji-icon" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M4,6H20V8H4V6M4,11H20V13H4V11M4,16H20V18H4V16Z"/>
-              </svg>
-              Kanji List
-              {kanjiList.length > 0 && (
-                <span className="kanji-count">{kanjiList.length}</span>
-              )}
-            </button>
-            <button className="dark-mode-toggle" onClick={toggleDarkMode}>
-              <img 
-                src="/moon.png" 
-                alt="Dark mode" 
-                className="theme-icon moon-icon"
+              <Notifications
+                showNotification={showNotification}
+                setShowNotification={setShowNotification}
+                showKanjiNotification={showKanjiNotification}
+                kanjiNotificationText={kanjiNotificationText}
+                setShowKanjiNotification={setShowKanjiNotification}
               />
-              <img 
-                src="/sun.png" 
-                alt="Light mode" 
-                className="theme-icon sun-icon"
-              />
-            </button>
-            {!isAuthenticated ? (
-              <div className="auth-buttons">
-                <button className="login-btn" onClick={() => setShowLoginModal(true)}>
-                  Login
-                </button>
-                <button className="register-btn" onClick={() => setShowRegisterModal(true)}>
-                  Get Started
-                </button>
-              </div>
-            ) : (
-              <div className="user-section">
-                <button 
-                  className="user-profile-btn" 
-                  onClick={() => setShowUserProfile(!showUserProfile)}
-                >
-                  <div className="user-avatar">
-                    {user?.full_name?.charAt(0) || user?.username?.charAt(0) || 'U'}
-                  </div>
-                </button>
-                {showUserProfile && (
-                  <UserProfile 
-                    onClose={() => setShowUserProfile(false)}
-                    onOpenProfile={() => setShowProfileEditor(true)}
-                  />
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </nav>
 
-      {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
-        <div className="sidebar-header">
-          <h3>Kanji Information</h3>
-          <button className="sidebar-close" onClick={toggleSidebar}>
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
-            </svg>
-          </button>
-        </div>
-        <div className="sidebar-content">
-          {kanjiList.length === 0 ? (
-            <p className="no-kanji">No kanji found in extracted text.</p>
-          ) : (
-            <>
-              {isAuthenticated && (
-                <div className="kanji-selection-controls">
-                  <div className="selection-info">
-                    <span className="selection-count">
-                      {selectedKanji.size} of {kanjiList.length} selected
-                    </span>
-                  </div>
-                  <div className="selection-buttons">
-                    <button 
-                      className="select-all-btn"
-                      onClick={selectAllKanji}
-                      disabled={selectedKanji.size === kanjiList.length}
-                    >
-                      Select All
-                    </button>
-                    <button 
-                      className="clear-all-btn"
-                      onClick={clearAllSelections}
-                      disabled={selectedKanji.size === 0}
-                    >
-                      Clear All
-                    </button>
-                    <button 
-                      className="save-selected-btn"
-                      onClick={saveSelectedKanji}
-                      disabled={selectedKanji.size === 0}
-                    >
-                      <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3M19,19H5V5H16.17L19,7.83V19M12,12C10.34,12 9,13.34 9,15C9,16.66 10.34,18 12,18C13.66,18 15,16.66 15,15C15,13.34 13.66,12 12,12Z"/>
-                      </svg>
-                      Save to Collection ({selectedKanji.size})
-                    </button>
-                  </div>
-                </div>
-              )}
-              <div className="kanji-sort-controls">
-                <label htmlFor="kanji-sort">Sort by:</label>
-                <select 
-                  id="kanji-sort"
-                  value={kanjiSortOption} 
-                  onChange={(e) => setKanjiSortOption(e.target.value)}
-                  className="kanji-sort-select"
-                >
-                  <option value="chronological">Chronological Order</option>
-                  <option value="jlpt-easy">JLPT Level (Easy to Hard)</option>
-                  <option value="jlpt-hard">JLPT Level (Hard to Easy)</option>
-                  <option value="stroke-asc">Stroke Count (Less to More)</option>
-                  <option value="stroke-desc">Stroke Count (More to Less)</option>
-                </select>
-              </div>
-              <div className="kanji-grid">
-                {getSortedKanjiList().map(kanji => 
-                  renderKanjiCard(kanji, kanjiData, kanjiLoading, selectedKanji, toggleKanjiSelection)
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+          <Navbar
+            isAuthenticated={isAuthenticated}
+            onOpenDashboard={() => setCurrentPage('dashboard')}
+            onToggleSidebar={toggleSidebar}
+            toggleDarkMode={toggleDarkMode}
+            darkMode={darkMode}
+            onShowLogin={() => setShowLoginModal(true)}
+            onShowRegister={() => setShowRegisterModal(true)}
+            user={user}
+            showUserProfile={showUserProfile}
+            setShowUserProfile={setShowUserProfile}
+            onOpenProfileEditor={() => setShowProfileEditor(true)}
+            kanjiList={kanjiList}
+          />
 
-      {/* Sidebar overlay */}
-      {sidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
+          <SidebarKanji
+            sidebarOpen={sidebarOpen}
+            toggleSidebar={toggleSidebar}
+            kanjiList={kanjiList}
+            kanjiData={kanjiData}
+            kanjiLoading={kanjiLoading}
+            selectedKanji={selectedKanji}
+            toggleKanjiSelection={toggleKanjiSelection}
+            selectAllKanji={selectAllKanji}
+            clearAllSelections={clearAllSelections}
+            saveSelectedKanji={saveSelectedKanji}
+            kanjiSortOption={kanjiSortOption}
+            setKanjiSortOption={setKanjiSortOption}
+            isAuthenticated={isAuthenticated}
+          />
+
+          {sidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
 
       <main className="app-main">
-        <div className="upload-section">
-          <p className="upload-description">
-            Upload an image with Japanese text to extract it with furigana annotations
-          </p>
-          
-          <div className="file-input-container">
-            <input
-              type="file"
-              id="file-input"
-              accept="image/*"
-              onChange={handleFileSelect}
-              className="file-input"
-            />
-            <label htmlFor="file-input" className="file-input-label">
-              Choose Image File
-            </label>
-          </div>
-
-          <div className="input-divider">
-            <span className="divider-text">OR</span>
-          </div>
-
-          <div className="text-input-container">
-            <label htmlFor="text-input" className="text-input-label">
-              Paste Japanese Text
-            </label>
-            <textarea
-              id="text-input"
-              value={pastedText}
-              onChange={handleTextInput}
-              placeholder="Paste your Japanese text here..."
-              className="text-input"
-              rows="4"
-            />
-          </div>
-
-          {(previewUrl || pastedText.trim()) && (
-            <div className="preview-container">
-              {previewUrl && (
-                <img src={previewUrl} alt="Preview" className="image-preview" />
-              )}
-              {pastedText.trim() && (
-                <div className="text-preview">
-                  <h4>Text to Process:</h4>
-                  <div className="preview-text">{pastedText}</div>
-                </div>
-              )}
-              <button
-                onClick={handleUpload}
-                disabled={loading}
-                className="upload-button"
-              >
-                {loading ? 'Processing...' : 
-                 inputMode === 'text' ? 'Generate Furigana' : 'Extract Text with Furigana'}
-              </button>
-            </div>
-          )}
-        </div>
+        <UploadSection
+          previewUrl={previewUrl}
+          pastedText={pastedText}
+          handleFileSelect={handleFileSelect}
+          handleTextInput={handleTextInput}
+          handleUpload={handleUpload}
+          inputMode={inputMode}
+          loading={loading}
+        />
 
         {loading && (
           <div className="loading-container">
@@ -617,161 +365,15 @@ function AppContent() {
           </div>
         )}
 
-        {result && (
-          <div className="results-container">
-            <h2>Results</h2>
-            
-            <div className="result-section">
-              <h3>Original Text</h3>
-              <div className="original-text">
-                {result.original_text}
-              </div>
-            </div>
-
-            <div className="result-section">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3>Text with Furigana</h3>
-                <button 
-                  className="sidebar-toggle-inline"
-                  onClick={toggleSidebar}
-                  style={{
-                    background: 'var(--accent-blue)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '8px 16px',
-                    fontSize: '0.9em',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  <svg className="kanji-icon" viewBox="0 0 24 24" fill="currentColor" style={{ width: '18px', height: '18px' }}>
-                    <path d="M4,6H20V8H4V6M4,11H20V13H4V11M4,16H20V18H4V16Z"/>
-                  </svg>
-                  Show Kanji List
-                  <span className="kanji-count-inline" style={{
-                    background: 'rgba(255, 255, 255, 0.3)',
-                    color: 'white',
-                    fontSize: '0.8em',
-                    fontWeight: '600',
-                    padding: '2px 6px',
-                    borderRadius: '10px',
-                    minWidth: '18px',
-                    textAlign: 'center',
-                    marginLeft: '4px'
-                  }}>
-                    {kanjiList.length}
-                  </span>
-                </button>
-              </div>
-              <div className="furigana-container">
-                {result.pages.map((page, pageIndex) => (
-                  <div key={pageIndex} className="page-container">
-                    {page.lines.map((sentence, sentenceIndex) => {
-                      const confidenceLevel = sentence.confidence >= 0.8 ? 'high' : 
-                                            sentence.confidence >= 0.6 ? 'medium' : 'low';
-                      
-                      const lineKey = `page-${pageIndex}-sentence-${sentenceIndex}`;
-                      const isLoadingAudio = audioLoadingStates[lineKey];
-                      
-                      return (
-                        <div key={sentenceIndex} className="line-container sentence-container">
-                          <div className="sentence-number">
-                            Sentence {sentenceIndex + 1}
-                          </div>
-                          <div className="line-content">
-                            <div className="furigana-line">
-                              {renderFuriganaText(sentence.parts)}
-                            </div>
-                            <button
-                              className="listen-button"
-                              onClick={() => handlePlayAudioWrapper(sentence.original, lineKey)}
-                              disabled={isLoadingAudio}
-                              title="Listen to pronunciation"
-                            >
-                              {isLoadingAudio ? (
-                                <div className="button-spinner"></div>
-                              ) : (
-                                <svg className="speaker-icon" viewBox="0 0 24 24" fill="currentColor">
-                                  <path d="M3,9V15H7L12,20V4L7,9H3M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16C15.5,15.29 16.5,13.76 16.5,12M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.84 14,18.7V20.77C18,19.86 21,16.28 21,12C21,7.72 18,4.14 14,3.23Z"/>
-                                </svg>
-                              )}
-                            </button>
-                          </div>
-                          <div className={`confidence-score confidence-${confidenceLevel}`}>
-                            Confidence: {(sentence.confidence * 100).toFixed(1)}%
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="result-section">
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <h3>Simple Format</h3>
-                <button 
-                  className="furigana-toggle-button"
-                  onClick={() => setShowTraditionalFurigana(!showTraditionalFurigana)}
-                  style={{
-                    background: showTraditionalFurigana ? 'var(--accent-green)' : 'var(--accent-blue)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '8px 16px',
-                    fontSize: '0.9em',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  {showTraditionalFurigana ? 'Show Bracket Format' : 'Show Traditional Furigana'}
-                </button>
-              </div>
-              <div className="simple-text">
-                {showTraditionalFurigana ? (
-                  <div className="traditional-furigana">
-                    {result.pages.map((page, pageIndex) => (
-                      <div key={pageIndex}>
-                        {page.lines.map((sentence, sentenceIndex) => (
-                          <div key={sentenceIndex} style={{ marginBottom: '12px' }}>
-                            {renderFuriganaText(sentence.parts)}
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  result.furigana_text
-                )}
-              </div>
-            </div>
-
-            {result.translated_text && (
-              <div className="result-section">
-                <h3>English Translation</h3>
-                <div className="translated-text">
-                  {result.translated_text}
-                </div>
-              </div>
-            )}
-
-            {!result.translated_text && (
-              <div className="result-section">
-                <h3>English Translation</h3>
-                <div className="translation-error">
-                  Translation service temporarily unavailable
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+        <ResultsView
+          result={result}
+          audioLoadingStates={audioLoadingStates}
+          handlePlayAudioWrapper={handlePlayAudioWrapper}
+          showTraditionalFurigana={showTraditionalFurigana}
+          setShowTraditionalFurigana={setShowTraditionalFurigana}
+          kanjiList={kanjiList}
+          toggleSidebar={toggleSidebar}
+        />
       </main>
 
       {/* Add these components at the end of your return statement */}
