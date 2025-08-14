@@ -474,6 +474,61 @@
   font-weight: 600;
 }
 
+/* Dashboard styles extracted from App.css */
+.dashboard-toggle {
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.9em;
+  height: 36px;
+  margin-right: 12px;
+}
+
+body:not(.dark-mode) .dashboard-toggle {
+  color: transparent;
+  background: linear-gradient(45deg, #fbfbfb, #6deeff, #a6babb);
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  border-color: rgba(251, 251, 251, 0.3);
+}
+
+body.dark-mode .dashboard-toggle {
+  color: transparent;
+  background: linear-gradient(45deg, #ffd700, #ffa500, #ffd700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+.dashboard-toggle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+body:not(.dark-mode) .dashboard-toggle:hover {
+  border-color: rgba(109, 222, 255, 0.5);
+}
+
+body.dark-mode .dashboard-toggle:hover {
+  border-color: rgba(255, 215, 0, 0.5);
+}
+
+.dashboard-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
 @media (max-width: 768px) {
   .dashboard-header {
     padding: 20px;

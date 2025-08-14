@@ -272,6 +272,50 @@ body.dark-mode .auth-error {
   color: #2980b9;
 }
 
+/* AuthModal styles extracted from App.css */
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 8px;
+}
+
+.login-btn, .register-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.login-btn {
+  background: none;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.login-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.register-btn {
+  background: var(--accent-blue);
+  color: white;
+  border: 1px solid var(--accent-blue);
+}
+
+.register-btn:hover {
+  background: #2980b9;
+  border-color: #2980b9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .auth-modal-overlay {

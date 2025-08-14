@@ -1,0 +1,49 @@
+/* Navbar styles extracted from App.css */
+.navbar {
+  background: var(--navbar-bg);
+  padding: 0;
+  box-shadow: 0 2px 8px var(--shadow);
+  width: 100%;
+  position: relative;
+}
+
+.navbar-container {
+  max-width: 98%;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar-brand {
+  color: white;
+  font-size: 2em;
+  font-weight: 600;
+  margin: 0;  
+  letter-spacing: -0.5px;
+}
+
+body:not(.dark-mode) .navbar-brand {
+    color: transparent;
+    background: linear-gradient(45deg, #fbfbfb, #6deeff, #a6babb);
+    -webkit-background-clip: text;
+    background-clip: text;
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+}
+
+body.dark-mode .navbar-brand {
+  color: transparent;
+  background: linear-gradient(45deg, #ffd700, #ffa500, #ffd700);
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+}
+
+.navbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

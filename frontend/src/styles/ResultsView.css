@@ -1,0 +1,69 @@
+/* ResultsView styles extracted from App.css */
+.results-container {
+  background: var(--bg-primary);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px var(--shadow-light);
+  margin-bottom: 30px;
+  border: 1px solid var(--border-color);
+}
+
+.results-container h2 {
+  color: var(--text-primary);
+  margin-bottom: 30px;
+  font-size: 2em;
+  text-align: center;
+}
+
+.result-section {
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.result-section:last-child {
+  border-bottom: none;
+}
+
+.result-section h3 {
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  font-size: 1.4em;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--accent-blue);
+  display: inline-block;
+}
+
+.original-text {
+  background: var(--bg-secondary);
+  padding: 25px;
+  border-radius: 12px;
+  font-family: 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+  font-size: 1.3em;
+  line-height: 1.8;
+  border-left: 4px solid var(--accent-blue);
+  color: var(--text-primary);
+}
+
+.translated-text {
+  background: var(--bg-secondary);
+  padding: 25px;
+  border-radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  font-size: 1.3em;
+  line-height: 1.8;
+  border-left: 4px solid #e67e22;
+  color: var(--text-primary);
+}
+
+.translation-error {
+  background: var(--bg-secondary);
+  padding: 25px;
+  border-radius: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  font-size: 1.1em;
+  line-height: 1.6;
+  border-left: 4px solid var(--accent-red);
+  color: var(--text-muted);
+  font-style: italic;
+}
