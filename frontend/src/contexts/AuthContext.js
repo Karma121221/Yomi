@@ -22,6 +22,13 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
+      // Wake up the backend server immediately for all users
+      try {
+        await fetch(`${API_BASE_URL}/api/health`);
+      } catch (error) {
+        console.log('Health check failed, but continuing with auth...', error);
+      }
+      
       const storedToken = localStorage.getItem('token');
       
       if (storedToken) {
