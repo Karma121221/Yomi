@@ -1,5 +1,6 @@
 import React from 'react';
 import '../styles/LandingPage.css';
+import ParticlesBg from './ParticlesBg';
 
 export default function LandingPage({ 
   isAuthenticated, 
@@ -22,6 +23,13 @@ export default function LandingPage({
 
   return (
     <div className="landing-page">
+      <ParticlesBg 
+        className="particles-background"
+        quantity={400}
+        ease={100}
+        color="#FFD700"
+        staticity={15}
+      />
       <div className="landing-container">
         <div className="hero-section">
           <h1 className="hero-title">
