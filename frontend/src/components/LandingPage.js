@@ -65,8 +65,8 @@ export default function LandingPage({
                 isTextMode={true}
                 firstText="<ruby>難<rt>むずか</rt></ruby>しい<ruby>漢<rt>かん</rt></ruby><ruby>字<rt>じ</rt></ruby>も、もう<ruby>怖<rt>こわ</rt></ruby>くない。"
                 secondText="難しい漢字も、もう怖くない。"
-                firstContentClass="object-cover object-left-center w-full"
-                secondContentClass="object-cover object-left-center w-full"
+                firstContentClass="object-cover object-left-center w-full h-96"
+                secondContentClass="object-cover object-left-center w-full h-96"
                 className="size-full rounded-[22px] md:rounded-xl"
                 slideMode="hover"
                 autoplay={true}
