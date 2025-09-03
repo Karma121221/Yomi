@@ -62,10 +62,9 @@ export default function LandingPage({
               className="compare-card"
             >
               <Compare
-                firstImage={process.env.PUBLIC_URL + '/before.png'}
-                secondImage={process.env.PUBLIC_URL + '/after.png'}
-                firstImageAlt="Before"
-                secondImageAlt="After"
+                isTextMode={true}
+                firstText="<ruby>難<rt>むずか</rt></ruby>しい<ruby>漢<rt>かん</rt></ruby><ruby>字<rt>じ</rt></ruby>も、もう<ruby>怖<rt>こわ</rt></ruby>くない"
+                secondText="難しい漢字も、もう怖くない"
                 firstContentClass="object-cover object-left-center w-full h-96"
                 secondContentClass="object-cover object-left-center w-full h-96"
                 className="size-full rounded-[22px] md:rounded-xl"
@@ -74,6 +73,11 @@ export default function LandingPage({
                 autoplayDuration={6000}
               />
             </div>
+          </div>
+          
+          {/* Translation below comparison */}
+          <div className="translation-text">
+            "Even difficult kanji aren't scary anymore."
           </div>
         </div>
       </div>

@@ -4,6 +4,8 @@ import '../styles/Compare.css';
 // React port of Inspira UI Compare (Vue) with a similar API
 // Props:
 // - firstImage, secondImage, firstImageAlt, secondImageAlt
+// - firstText, secondText: text content for comparison
+// - isTextMode: boolean to switch between image and text mode
 // - className: extra classes on root
 // - firstContentClass, secondContentClass
 // - initialSliderPercentage (0-100)
@@ -17,6 +19,9 @@ export default function Compare({
 	secondImage = '',
 	firstImageAlt = 'First image',
 	secondImageAlt = 'Second image',
+	firstText = '',
+	secondText = '',
+	isTextMode = false,
 	className = '',
 	firstContentClass = '',
 	secondContentClass = '',
@@ -201,7 +206,11 @@ export default function Compare({
 		>
 			{/* Second content (background) */}
 			<div className={`compare-layer compare-second ${secondContentClass || ''}`.trim()}>
-				{secondImage ? (
+				{isTextMode ? (
+					<div className="compare-text compare-text-second">
+						<div className="compare-text-content" dangerouslySetInnerHTML={{ __html: secondText }} />
+					</div>
+				) : secondImage ? (
 					<img
 						src={secondImage}
 						alt={secondImageAlt}
@@ -216,7 +225,11 @@ export default function Compare({
 				className={`compare-layer compare-first ${firstContentClass || ''}`.trim()}
 				style={{ clipPath: `inset(0 ${100 - percent}% 0 0)` }}
 			>
-				{firstImage ? (
+				{isTextMode ? (
+					<div className="compare-text compare-text-first">
+						<div className="compare-text-content" dangerouslySetInnerHTML={{ __html: firstText }} />
+					</div>
+				) : firstImage ? (
 					<img
 						src={firstImage}
 						alt={firstImageAlt}
