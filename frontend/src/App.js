@@ -8,6 +8,7 @@ import SidebarKanji from './components/SidebarKanji';
 import UploadSection from './components/UploadSection';
 import ResultsView from './components/ResultsView';
 import Notifications from './components/Notifications';
+import LandingPage from './components/LandingPage';
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -21,7 +22,7 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
   : 'http://localhost:5000';
 
 function AppContent() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [pastedText, setPastedText] = useState('');
@@ -115,7 +116,27 @@ function AppContent() {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [showUserProfile, setShowUserProfile] = useState(false);
   const [showProfileEditor, setShowProfileEditor] = useState(false);
-  const [currentPage, setCurrentPage] = useState('main'); // 'main' or 'dashboard'
+  const [currentPage, setCurrentPage] = useState('landing'); // 'landing', 'main' or 'dashboard'
+  const [loginFromLanding, setLoginFromLanding] = useState(false);
+
+  // Handle page navigation based on authentication
+  useEffect(() => {
+    if (isAuthenticated && currentPage === 'landing') {
+      // If user logs in while on landing page, stay on landing page
+      // They need to click "Get Started" to go to main page
+    } else if (!isAuthenticated && (currentPage === 'main' || currentPage === 'dashboard')) {
+      // If user logs out while on main/dashboard, go to landing
+      setCurrentPage('landing');
+    }
+  }, [isAuthenticated, currentPage]);
+
+  // Auto-navigate to main page after successful login from landing page
+  useEffect(() => {
+    if (isAuthenticated && loginFromLanding) {
+      setCurrentPage('main');
+      setLoginFromLanding(false);
+    }
+  }, [isAuthenticated, loginFromLanding]);
 
   useEffect(() => {
     // Check if user has a saved preference, otherwise default to dark mode
@@ -278,6 +299,18 @@ function AppContent() {
     await handlePlayAudio(text, lineKey, playingAudio, setPlayingAudio, audioLoadingStates, setAudioLoadingStates);
   };
 
+  // Show loading spinner while authentication is initializing
+  if (authLoading) {
+    return (
+      <div className="App">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="App">
       {/* SVG Gradients for buttons */}
@@ -295,6 +328,22 @@ function AppContent() {
           </linearGradient>
         </defs>
       </svg>
+
+      {/* Landing Page */}
+      {currentPage === 'landing' && (
+        <LandingPage
+          isAuthenticated={isAuthenticated}
+          onGetStarted={() => setCurrentPage('main')}
+          onShowLogin={() => {
+            setLoginFromLanding(true);
+            setShowLoginModal(true);
+          }}
+          onShowRegister={() => {
+            setLoginFromLanding(true);
+            setShowRegisterModal(true);
+          }}
+        />
+      )}
 
       {/* Main Application - only show when on main page */}
       {currentPage === 'main' && (
@@ -315,6 +364,7 @@ function AppContent() {
             darkMode={darkMode}
             onShowLogin={() => setShowLoginModal(true)}
             onShowRegister={() => setShowRegisterModal(true)}
+            onGoToLanding={() => setCurrentPage('landing')}
             user={user}
             showUserProfile={showUserProfile}
             setShowUserProfile={setShowUserProfile}
@@ -379,25 +429,6 @@ function AppContent() {
       {/* Add these components at the end of your return statement */}
       <Analytics />
       <SpeedInsights />
-
-      {/* Authentication Modals */}
-      <LoginModal 
-        isOpen={showLoginModal} 
-        onClose={() => setShowLoginModal(false)}
-        switchToRegister={() => {
-          setShowLoginModal(false);
-          setShowRegisterModal(true);
-        }}
-      />
-      
-      <RegisterModal 
-        isOpen={showRegisterModal} 
-        onClose={() => setShowRegisterModal(false)}
-        switchToLogin={() => {
-          setShowRegisterModal(false);
-          setShowLoginModal(true);
-        }}
-      />
         </>
       )}
 
@@ -410,6 +441,33 @@ function AppContent() {
       {currentPage === 'dashboard' && (
         <Dashboard onClose={() => setCurrentPage('main')} />
       )}
+
+      {/* Authentication Modals - Render on all pages */}
+      <LoginModal 
+        isOpen={showLoginModal} 
+        onClose={() => {
+          setShowLoginModal(false);
+          // Keep loginFromLanding as-is so useEffect can navigate after auth
+        }}
+        switchToRegister={() => {
+          setShowLoginModal(false);
+          setShowRegisterModal(true);
+        }}
+        fromLanding={loginFromLanding}
+      />
+      
+      <RegisterModal 
+        isOpen={showRegisterModal} 
+        onClose={() => {
+          setShowRegisterModal(false);
+          // Keep loginFromLanding as-is so useEffect can navigate after auth
+        }}
+        switchToLogin={() => {
+          setShowRegisterModal(false);
+          setShowLoginModal(true);
+        }}
+        fromLanding={loginFromLanding}
+      />
     </div>
   );
 }

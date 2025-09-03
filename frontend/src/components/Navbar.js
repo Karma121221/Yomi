@@ -9,6 +9,7 @@ export default function Navbar({
   darkMode,
   onShowLogin,
   onShowRegister,
+  onGoToLanding,
   user,
   showUserProfile,
   setShowUserProfile,
@@ -18,7 +19,7 @@ export default function Navbar({
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <h1 className="navbar-brand">
+        <h1 className="navbar-brand" onClick={onGoToLanding} style={{ cursor: 'pointer' }}>
           Yomi 
           <ruby className="furigana-ruby">
             方

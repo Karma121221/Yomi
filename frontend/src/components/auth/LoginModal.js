@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/AuthModal.css';
 
-const LoginModal = ({ isOpen, onClose, switchToRegister }) => {
+const LoginModal = ({ isOpen, onClose, switchToRegister, fromLanding = false }) => {
   const [formData, setFormData] = useState({
     identifier: '',
     password: '',
@@ -47,8 +47,8 @@ const LoginModal = ({ isOpen, onClose, switchToRegister }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="auth-modal-overlay">
-      <div className="auth-modal">
+    <div className={`auth-modal-overlay ${fromLanding ? 'landing-theme' : ''}`}>
+      <div className={`auth-modal ${fromLanding ? 'landing-theme' : ''}`}>
         <div className="auth-modal-header">
           <h2>Welcome Back</h2>
           <button className="auth-modal-close" onClick={handleClose}>
