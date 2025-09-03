@@ -4,6 +4,7 @@ import ParticlesBg from './ParticlesBg';
 
 export default function LandingPage({ 
   isAuthenticated, 
+  darkMode = true,
   onGetStarted, 
   onShowLogin,
   onShowRegister 
@@ -22,12 +23,12 @@ export default function LandingPage({
   };
 
   return (
-    <div className="landing-page">
+    <div className={`landing-page ${darkMode ? 'dark-mode' : 'light-mode'}`}>
       <ParticlesBg 
         className="particles-background"
         quantity={400}
         ease={100}
-        color="#FFD700"
+        color={darkMode ? "#FFD700" : "#3498db"}
         staticity={15}
       />
       <div className="landing-container">

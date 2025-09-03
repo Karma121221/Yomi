@@ -333,6 +333,7 @@ function AppContent() {
       {currentPage === 'landing' && (
         <LandingPage
           isAuthenticated={isAuthenticated}
+          darkMode={darkMode}
           onGetStarted={() => setCurrentPage('main')}
           onShowLogin={() => {
             setLoginFromLanding(true);

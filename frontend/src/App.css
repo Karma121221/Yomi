@@ -97,6 +97,36 @@ body {
   letter-spacing: -0.5px;
 }
 
+/* Furigana readability and spacing within the navbar brand */
+.navbar-brand .furigana-ruby {
+  ruby-align: center;
+  ruby-position: over;
+}
+
+.navbar-brand .furigana-rt {
+  font-size: 0.6em;
+  font-weight: 400;
+  line-height: 1;
+  /* Vastly tighten gap between かた and 方 */
+  margin-bottom: -0.5rem;
+  /* Force solid, readable color (no gradient fill) */
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+}
+
+/* Light mode - night-like gray gradient for navbar furigana */
+body:not(.dark-mode) .navbar-brand .furigana-rt {
+  color: #6deeff !important;
+  -webkit-text-fill-color: #6deeff !important;
+}
+
+/* Dark mode - sun-like yellow gradient for navbar furigana */
+body.dark-mode .navbar-brand .furigana-rt {
+  color: #ffd700 !important;
+  -webkit-text-fill-color: #ffd700 !important;
+}
+
 /* Light mode - night-like gray gradient for navbar brand */
 body:not(.dark-mode) .navbar-brand {
     color: transparent;

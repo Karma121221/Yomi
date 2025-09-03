@@ -1,12 +1,22 @@
 /* Landing Page Styles */
 .landing-page {
   min-height: 100vh;
-  background: #1a1a1a;
-  color: #ffffff;
   overflow-x: hidden;
   overflow-y: auto;
   scroll-behavior: smooth;
   position: relative;
+}
+
+/* Dark mode (default) */
+.landing-page.dark-mode {
+  background: #1a1a1a;
+  color: #ffffff;
+}
+
+/* Light mode */
+.landing-page.light-mode {
+  background: #f3f2ff;
+  color: #2c3e50;
 }
 
 /* Particles Background */
@@ -50,47 +60,83 @@
   font-size: 4rem;
   font-weight: 700;
   margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+/* Dark mode hero title */
+.landing-page.dark-mode .hero-title {
   background: linear-gradient(135deg, #ffd700 0%, #ffa500 50%, #ffd700 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradientShift 3s ease-in-out infinite;
-  line-height: 1.2;
+  animation: gradientShiftGold 3s ease-in-out infinite;
+}
+
+/* Light mode hero title */
+.landing-page.light-mode .hero-title {
+  background: linear-gradient(135deg, #3498db 0%, #5dade2 50%, #3498db 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShiftBlue 3s ease-in-out infinite;
 }
 
 .hero-title .furigana-ruby {
   font-size: inherit;
+  /* Keep the main title gradient on the base character, but don't force it on rt */
   background: inherit;
   background-size: inherit;
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  ruby-align: center;
+  ruby-position: over;
 }
 
 .hero-title .furigana-rt {
   font-size: 1.2rem;
   font-weight: 400;
-  background: linear-gradient(135deg, #ffd700 0%, #ffa500 50%, #ffd700 100%);
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradientShift 3s ease-in-out infinite;
-  margin-bottom: 0.5rem;
+  /* Vastly tighten the gap between かた and 方 (consistent with navbar) */
+  margin-bottom: -0.5rem;
+  /* Ensure readable solid color instead of gradient fill */
+  background: none !important;
+  background-size: auto;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  -webkit-text-fill-color: currentColor;
+  color: inherit;
+  line-height: 1;
+}
+
+/* Solid, theme-consistent colors for furigana (readable in both modes) */
+/* Match accent colors (non-gradient): yellow in dark mode, blue in light mode */
+.landing-page.dark-mode .hero-title .furigana-rt {
+  color: #ffd700 !important;
+  -webkit-text-fill-color: #ffd700 !important;
+}
+
+.landing-page.light-mode .hero-title .furigana-rt {
+  color: #3498db !important;
+  -webkit-text-fill-color: #3498db !important;
 }
 
 .hero-subtitle {
   font-size: 1.5rem;
   font-weight: 300;
   margin-bottom: 3rem;
-  opacity: 0.8;
-  background: linear-gradient(135deg, #ffd700 0%, #ffa500 50%, #ffd700 100%);
-  background-size: 200% 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: gradientShift 3s ease-in-out infinite;
+  opacity: 0.85;
+  /* Use solid accent color; remove gradient text fill for readability */
+  color: inherit;
+}
+
+/* Subtitle accent colors per mode (non-gradient) */
+.landing-page.dark-mode .hero-subtitle {
+  color: #ffd700;
+}
+
+.landing-page.light-mode .hero-subtitle {
+  color: #3498db;
 }
 
 .get-started-btn {
@@ -99,20 +145,38 @@
   padding: 1rem 2.5rem;
   border: none;
   border-radius: 50px;
-  background: linear-gradient(135deg, #ffd700 0%, #ffa500 50%, #ffd700 100%);
   background-size: 200% 200%;
-  color: #1a1a1a;
   cursor: pointer;
   transition: all 0.3s ease;
-  animation: gradientShift 3s ease-in-out infinite;
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+/* Dark mode button */
+.landing-page.dark-mode .get-started-btn {
+  background: linear-gradient(135deg, #ffd700 0%, #ffa500 50%, #ffd700 100%);
+  color: #1a1a1a;
+  animation: gradientShiftGold 3s ease-in-out infinite;
   box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
 }
 
-.get-started-btn:hover {
+.landing-page.dark-mode .get-started-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+  animation-duration: 1.5s;
+}
+
+/* Light mode button */
+.landing-page.light-mode .get-started-btn {
+  background: linear-gradient(135deg, #3498db 0%, #5dade2 50%, #3498db 100%);
+  color: #ffffff;
+  animation: gradientShiftBlue 3s ease-in-out infinite;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+}
+
+.landing-page.light-mode .get-started-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
   animation-duration: 1.5s;
 }
 
@@ -120,7 +184,16 @@
   transform: translateY(0);
 }
 
-@keyframes gradientShift {
+@keyframes gradientShiftGold {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes gradientShiftBlue {
   0%, 100% {
     background-position: 0% 50%;
   }
