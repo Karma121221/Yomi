@@ -1,0 +1,105 @@
+/* Root container */
+.compare-root {
+	width: 100%;
+	height: 24rem; /* h-96 */
+	overflow: hidden;
+	border-radius: 1rem; /* rounded-2xl */
+	cursor: col-resize;
+	user-select: none;
+}
+
+/* Support a 3D-ish wrapper like in Inspira example if consumer adds transform */
+.compare-root * { box-sizing: border-box; }
+
+/* Layers */
+.compare-layer {
+	position: absolute;
+	inset: 0;
+}
+
+.compare-first,
+.compare-second {
+	border-radius: 1rem;
+	overflow: hidden;
+}
+
+.compare-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: left center;
+	display: block;
+	pointer-events: none;
+}
+
+/* Divider line */
+.compare-divider {
+	position: absolute;
+	top: 0;
+	height: 100%;
+	width: 1px;
+	background: linear-gradient(to bottom, transparent 5%, #6366f1 50%, transparent 95%);
+	z-index: 30;
+	transform: translateX(-0.5px);
+	pointer-events: none; /* allow events to pass except on handle */
+}
+
+/* Decorative glow to left of divider */
+.compare-divider::before {
+	content: "";
+	position: absolute;
+	left: -2.5rem;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 9rem;
+	height: 100%;
+	background: linear-gradient(to right, rgba(99,102,241,0.4), transparent);
+	mask-image: radial-gradient(100px at left, white, transparent);
+	opacity: 0.5;
+}
+
+/* Cyan accent flare */
+.compare-divider::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 2.5rem;
+	height: 50%;
+	background: linear-gradient(to right, rgba(34,211,238,1), transparent);
+	mask-image: radial-gradient(50px at left, white, transparent);
+	opacity: 0.9;
+}
+
+/* Handle */
+.compare-handle {
+	position: absolute;
+	right: -10px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 20px;
+	height: 20px;
+	border-radius: 6px;
+	background: #fff;
+	box-shadow: 0 -1px 0 0 rgba(255,255,255,0.25), 0 4px 12px rgba(0,0,0,0.2);
+	pointer-events: auto; /* make it draggable when needed */
+}
+
+/* Theme awareness via parent container classes already present in app */
+.landing-page.dark-mode .compare-root {
+	background: #0f0f13;
+	border: 1px solid #26272b;
+}
+
+.landing-page.light-mode .compare-root {
+	background: #f5f7fb;
+	border: 1px solid #e5e7eb;
+}
+
+/* Cursor for drag mode */
+.compare-root.is-drag,
+.compare-divider.is-drag {
+	cursor: grab;
+}
+

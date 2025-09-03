@@ -1,6 +1,7 @@
 import React from 'react';
 import '../styles/LandingPage.css';
 import ParticlesBg from './ParticlesBg';
+import Compare from './Compare';
 
 export default function LandingPage({ 
   isAuthenticated, 
@@ -46,6 +47,34 @@ export default function LandingPage({
           <button className="get-started-btn" onClick={handleGetStarted}>
             Get Started
           </button>
+          {/* Comparison section below CTA */}
+          <div className="compare-wrapper" style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginTop: '3rem',
+            perspective: '800px',
+            transformStyle: 'preserve-3d',
+            padding: '0 0.5rem'
+          }}>
+            <div
+              style={{ transform: 'rotateX(15deg) translateZ(80px)' }}
+              className="compare-card"
+            >
+              <Compare
+                firstImage={process.env.PUBLIC_URL + '/before.png'}
+                secondImage={process.env.PUBLIC_URL + '/after.png'}
+                firstImageAlt="Before"
+                secondImageAlt="After"
+                firstContentClass="object-cover object-left-center w-full h-96"
+                secondContentClass="object-cover object-left-center w-full h-96"
+                className="size-full rounded-[22px] md:rounded-xl"
+                slideMode="hover"
+                autoplay={true}
+                autoplayDuration={6000}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -241,3 +241,30 @@
     margin-bottom: 1.5rem;
   }
 }
+
+/* Compare card styling below CTA */
+.compare-card {
+  width: min(90vw, 900px);
+  height: min(60vh, 480px);
+  border-radius: 1.5rem;
+  padding: 0.25rem; /* p-1 */
+  border: 1px solid;
+}
+
+.landing-page.dark-mode .compare-card {
+  background: #0a0a0a;
+  border-color: #2a2b2f;
+}
+
+.landing-page.light-mode .compare-card {
+  background: #f0f2f7;
+  border-color: #e5e7eb;
+}
+
+@media (min-width: 768px) {
+  .compare-card {
+    height: 70vh;
+    max-height: 640px;
+    padding: 1rem; /* md:p-4 */
+  }
+}
