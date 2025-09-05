@@ -280,7 +280,9 @@ body.dark-mode .auth-error {
   margin-left: 8px;
 }
 
-.login-btn, .register-btn {
+/* Scope modal-specific button styles to avoid colliding with navbar buttons */
+.auth-modal .login-btn,
+.auth-modal .register-btn {
   padding: 8px 16px;
   border: none;
   border-radius: 8px;
@@ -291,25 +293,25 @@ body.dark-mode .auth-error {
   text-decoration: none;
 }
 
-.login-btn {
+.auth-modal .login-btn {
   background: none;
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.login-btn:hover {
+.auth-modal .login-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
 }
 
-.register-btn {
+.auth-modal .register-btn {
   background: var(--accent-blue);
   color: white;
   border: 1px solid var(--accent-blue);
 }
 
-.register-btn:hover {
+.auth-modal .register-btn:hover {
   background: #2980b9;
   border-color: #2980b9;
   transform: translateY(-1px);

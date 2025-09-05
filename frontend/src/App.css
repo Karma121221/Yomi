@@ -861,29 +861,59 @@ body.dark-mode .dashboard-toggle:hover {
   text-decoration: none;
 }
 
-.login-btn {
+/* Light mode (default styles) */
+body:not(.dark-mode) .login-btn {
   background: none;
   color: white;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.login-btn:hover {
+body:not(.dark-mode) .login-btn:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-1px);
 }
 
-.register-btn {
+body:not(.dark-mode) .register-btn {
   background: var(--accent-blue);
   color: white;
   border: 1px solid var(--accent-blue);
 }
 
-.register-btn:hover {
+body:not(.dark-mode) .register-btn:hover {
   background: #2980b9;
   border-color: #2980b9;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+/* Dark mode - match LandingPage yellow theme for prominent CTA */
+body.dark-mode .register-btn {
+  background: linear-gradient(135deg, #ffd700 0%, #ffa500 50%, #ffd700 100%);
+  background-size: 200% 200%;
+  animation: gradientShiftGold 3s ease-in-out infinite;
+  color: #1a1a1a;
+  border: none;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+body.dark-mode .register-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.45);
+  animation-duration: 1.5s;
+}
+
+/* Dark mode - login as secondary action with yellow accents */
+body.dark-mode .login-btn {
+  background: none;
+  color: #ffd700;
+  border: 1px solid rgba(255, 215, 0, 0.18);
+}
+
+body.dark-mode .login-btn:hover {
+  background: rgba(255, 215, 0, 0.06);
+  border-color: rgba(255, 215, 0, 0.35);
+  transform: translateY(-1px);
 }
 
 /* User section */
