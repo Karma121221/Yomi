@@ -12,8 +12,14 @@ export const useAuth = () => {
 };
 
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? process.env.REACT_APP_API_URL || '' 
+  ? process.env.REACT_APP_API_URL || 'https://yomi-backend.onrender.com/' 
   : 'http://localhost:5000';
+
+// Validate API URL in production
+if (process.env.NODE_ENV === 'production' && 
+    (!process.env.REACT_APP_API_URL || process.env.REACT_APP_API_URL.includes('your-render-backend-url'))) {
+  console.warn('⚠️ REACT_APP_API_URL is not properly configured. Please set it to your actual Render backend URL.');
+}
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -22,11 +28,14 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      // Wake up the backend server immediately for all users
-      try {
-        await fetch(`${API_BASE_URL}/api/health`);
-      } catch (error) {
-        console.log('Health check failed, but continuing with auth...', error);
+      // Start backend health check in background (non-blocking)
+      if (API_BASE_URL) {
+        fetch(`${API_BASE_URL}/api/health`, { 
+          method: 'GET',
+          signal: AbortSignal.timeout(5000) // 5 second timeout
+        }).catch(error => {
+          console.log('Health check failed, but continuing with auth...', error);
+        });
       }
       
       const storedToken = localStorage.getItem('token');
@@ -49,6 +58,7 @@ export const AuthProvider = ({ children }) => {
                 'Authorization': `Bearer ${storedToken}`,
                 'Content-Type': 'application/json',
               },
+              signal: AbortSignal.timeout(10000) // 10 second timeout
             });
 
             if (response.ok) {
@@ -59,6 +69,7 @@ export const AuthProvider = ({ children }) => {
                   'Authorization': `Bearer ${storedToken}`,
                   'Content-Type': 'application/json',
                 },
+                signal: AbortSignal.timeout(10000) // 10 second timeout
               });
 
               if (profileResponse.ok) {

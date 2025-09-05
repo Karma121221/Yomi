@@ -163,10 +163,43 @@ cd frontend
 npm install
 ```
 
-3. Start the development server:
+3. For production deployment, set the backend API URL:
+```bash
+# Create .env file in frontend directory
+echo "REACT_APP_API_URL=https://your-backend-url.onrender.com" > .env
+```
+
+4. Start the development server:
 ```bash
 npm start
 ```
+
+## 🚀 Production Deployment
+
+### Vercel (Frontend) + Render (Backend) Setup
+
+#### Backend (Render):
+1. Connect your GitHub repository to Render
+2. Set up environment variables in Render dashboard:
+   - `AZURE_OCR_ENDPOINT`, `AZURE_OCR_KEY`
+   - `TTS_AZURE_ENDPOINT`, `TTS_AZURE_KEY` 
+   - `TL_AZURE_ENDPOINT`, `TL_AZURE_KEY`
+   - `MONGODB_URI`, `JWT_SECRET_KEY`
+3. Deploy using the included `Dockerfile`
+
+#### Frontend (Vercel):
+1. Connect your GitHub repository to Vercel
+2. Set the Root Directory to `frontend`
+3. **Important**: Set environment variable in Vercel:
+   - `REACT_APP_API_URL=https://your-render-backend-url.onrender.com`
+4. Deploy
+
+#### Troubleshooting Long Loading Times:
+If your site shows a loading spinner for an extended time on Vercel:
+1. Ensure `REACT_APP_API_URL` is properly set in Vercel environment variables
+2. Verify your Render backend URL is accessible
+3. Check browser console for API connection errors
+4. The app includes fallback timeouts to prevent indefinite loading
 
 ## 🔁 Usage
 1. Upload an image or paste text into the frontend.
