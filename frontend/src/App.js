@@ -124,10 +124,11 @@ function AppContent() {
     if (isAuthenticated && currentPage === 'landing') {
       // If user logs in while on landing page, stay on landing page
       // They need to click "Get Started" to go to main page
-    } else if (!isAuthenticated && (currentPage === 'main' || currentPage === 'dashboard')) {
-      // If user logs out while on main/dashboard, go to landing
+    } else if (!isAuthenticated && currentPage === 'dashboard') {
+      // If user logs out while on dashboard, go to landing (dashboard requires auth)
       setCurrentPage('landing');
     }
+    // Allow main page access even without authentication (skip functionality)
   }, [isAuthenticated, currentPage]);
 
   // Auto-navigate to main page after successful login from landing page
@@ -299,6 +300,14 @@ function AppContent() {
     await handlePlayAudio(text, lineKey, playingAudio, setPlayingAudio, audioLoadingStates, setAudioLoadingStates);
   };
 
+  // Handle skip login functionality
+  const handleSkipLogin = () => {
+    setShowLoginModal(false);
+    setShowRegisterModal(false);
+    setLoginFromLanding(false);
+    setCurrentPage('main'); // Allow access to main page without authentication
+  };
+
   // Show loading spinner while authentication is initializing
   if (authLoading) {
     return (
@@ -455,6 +464,7 @@ function AppContent() {
           setShowRegisterModal(true);
         }}
         fromLanding={loginFromLanding}
+        onSkip={loginFromLanding ? handleSkipLogin : undefined}
       />
       
       <RegisterModal 
@@ -468,6 +478,7 @@ function AppContent() {
           setShowLoginModal(true);
         }}
         fromLanding={loginFromLanding}
+        onSkip={loginFromLanding ? handleSkipLogin : undefined}
       />
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import '../../styles/AuthModal.css';
 
-const LoginModal = ({ isOpen, onClose, switchToRegister, fromLanding = false }) => {
+const LoginModal = ({ isOpen, onClose, switchToRegister, fromLanding = false, onSkip }) => {
   const [formData, setFormData] = useState({
     identifier: '',
     password: '',
@@ -128,6 +128,14 @@ const LoginModal = ({ isOpen, onClose, switchToRegister, fromLanding = false }) 
               <button type="button" onClick={switchToRegister} className="auth-switch-btn">
                 Sign up here
               </button>
+              {fromLanding && onSkip && (
+                <>
+                  {' '}or{' '}
+                  <button type="button" onClick={onSkip} className="auth-switch-btn">
+                    Skip for now
+                  </button>
+                </>
+              )}
             </p>
           </div>
         </form>
