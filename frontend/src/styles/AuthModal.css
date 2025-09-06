@@ -101,6 +101,28 @@
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
+/* Separator between standard form and oauth */
+.oauth-separator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+.oauth-separator::before,
+.oauth-separator::after {
+  content: '';
+  height: 1px;
+  width: 36%;
+  background: var(--border-color);
+  border-radius: 2px;
+}
+.oauth-separator span {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.95em;
+}
+
 .auth-error {
   background: #ffebee;
   border: 1px solid #ffcdd2;
@@ -118,6 +140,22 @@ body.dark-mode .auth-error {
   background: rgba(255, 87, 87, 0.1);
   border-color: rgba(255, 87, 87, 0.3);
   color: #ff5757;
+}
+
+/* Make Google button readable in dark mode */
+body.dark-mode .google-btn {
+  background: linear-gradient(90deg, #2b2b2b 0%, #333333 100%);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text-primary);
+  box-shadow: none;
+}
+
+
+
+/* Slightly lighten separator in dark mode */
+body.dark-mode .oauth-separator::before,
+body.dark-mode .oauth-separator::after {
+  background: rgba(255,255,255,0.06);
 }
 
 .auth-error .error-icon {

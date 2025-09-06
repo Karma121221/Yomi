@@ -111,13 +111,7 @@ const RegisterModal = ({ isOpen, onClose, switchToLogin, fromLanding = false, on
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          <div className="oauth-row">
-            <button type="button" className="google-btn" onClick={startGoogleLogin}>
-              <img src="/yomu.png" alt="Google" className="google-icon" />
-              Continue with Google
-            </button>
-          </div>
+  <form onSubmit={handleSubmit} className="auth-form">
           {error && (
             <div className="auth-error">
               <svg className="error-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -255,6 +249,17 @@ const RegisterModal = ({ isOpen, onClose, switchToLogin, fromLanding = false, on
               'Create Account'
             )}
           </button>
+
+          <div className="oauth-separator">
+            <span>or</span>
+          </div>
+
+          <div className="oauth-row">
+            <button type="button" className="google-btn" onClick={startGoogleLogin}>
+              <img src="/google.svg" alt="Google" className="google-icon" />
+              Continue with Google
+            </button>
+          </div>
 
           <div className="auth-switch">
             <p>
