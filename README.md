@@ -38,7 +38,12 @@ A modern web application that extracts Japanese text from images using OCR, adds
 ### Translation
 - **English Translation**: Automatic translation of Japanese text to English using Azure Translator
 
-## ✅ New / Updated Features (since previous README)
+### Frontend Enhancements
+- **Dark/Light Theme Toggle**: Easily switch between themes for better readability.
+- **Responsive Design**: Optimized for both desktop and mobile devices.
+- **Modular Structure**: Organized components, contexts, and utilities for maintainability.
+
+## ✅ New / Updated Features
 - Full backend REST API (Flask) with endpoints for:
   - /api/upload — image upload + OCR + furigana + translation
   - /api/process-text — direct text processing (no OCR) producing furigana
@@ -56,18 +61,24 @@ A modern web application that extracts Japanese text from images using OCR, adds
   - Profile editor, user dropdown, logout confirmation
   - Kanji selection, bulk save, notifications, and kanji info loading
 - TTS SSML usage with Azure "Neural" voices and caching-ready response (audio returned as attachment)
+- Deployment configuration using `vercel.json` for frontend.
 
 ## 📸 Screenshots
 
 ![Main Interface](screenshots/1.png)
+*Main interface showcasing text extraction and furigana generation.*
 
 ![Furigana Display](screenshots/2.png)
+*Furigana annotations displayed in ruby text format.*
 
 ![Kanji Information](screenshots/3.png)
+*Detailed kanji information including readings and meanings.*
 
 ![Audio Features](screenshots/4.png)
+*Audio playback for Japanese text using Azure Speech Services.*
 
 ![Mobile View](screenshots/5.png)
+*Responsive design optimized for mobile devices.*
 
 ## 🛠️ Technology Stack
 
@@ -160,7 +171,7 @@ cd frontend
 
 2. Install dependencies:
 ```bash
-npm install
+pnpm install
 ```
 
 3. For production deployment, set the backend API URL:
@@ -171,7 +182,7 @@ echo "REACT_APP_API_URL=https://your-backend-url.onrender.com" > .env
 
 4. Start the development server:
 ```bash
-npm start
+pnpm start
 ```
 
 ## 🚀 Production Deployment
@@ -207,7 +218,8 @@ If your site shows a loading spinner for an extended time on Vercel:
 3. Play TTS audio for sentences or full text.
 4. Save kanji to your collection (requires sign-up / sign-in).
 5. Manage saved kanji in Dashboard; sort by JLPT, stroke count, etc.
-6. Edit user profile, view study progress, and sign out.
+6. Toggle between dark and light themes.
+7. Edit user profile, view study progress, and sign out.
 
 ## ⚠️ Notes & Troubleshooting
 - MeCab: the Dockerfile installs system MeCab components. On macOS/Windows, install MeCab separately or use Docker to avoid platform-specific installation issues.
@@ -219,4 +231,4 @@ If your site shows a loading spinner for an extended time on Vercel:
 Contributions welcome — please open PRs for bug fixes or new features. Follow repository code style and include tests where applicable.
 
 ## Acknowledgements
-Uses KanjiAPI.dev, Azure Cognitive Services, MeCab, PyKakasi and other open source libraries. Thank you to contributors and the language learning community.
+Uses KanjiAPI.dev, Azure Cognitive Services, MeCab, PyKakasi, and other open source libraries. Thank you to contributors and the language learning community.
