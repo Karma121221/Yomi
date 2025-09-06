@@ -131,6 +131,27 @@ function AppContent() {
     // Allow main page access even without authentication (skip functionality)
   }, [isAuthenticated, currentPage]);
 
+  // On mount: if OAuth callback returned token in URL, attempt to consume it
+  useEffect(() => {
+    const tryHandleOAuth = async () => {
+      try {
+        const { handleOAuthCallback } = require('./contexts/AuthContext');
+        if (window.location.hash && window.location.hash.includes('auth-callback')) {
+          const done = await handleOAuthCallback();
+          if (done) {
+            setShowLoginModal(false);
+            setShowRegisterModal(false);
+            setCurrentPage('main');
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+
+    tryHandleOAuth();
+  }, []);
+
   // Auto-navigate to main page after successful login from landing page
   useEffect(() => {
     if (isAuthenticated && loginFromLanding) {

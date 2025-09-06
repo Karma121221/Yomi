@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, redirect
 from flask_cors import CORS
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import os
@@ -12,6 +12,8 @@ import io
 import hashlib
 import uuid
 from auth import AuthManager
+from urllib.parse import urlencode
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -354,6 +356,79 @@ def verify_token():
         return jsonify({'success': True, 'user_id': user_id}), 200
     except Exception as e:
         return jsonify({'success': False, 'message': 'Token invalid'}), 401
+
+
+# Simple Google OAuth2 flow endpoints (server-side minimal handling)
+@app.route('/api/auth/google/login')
+def google_login():
+    # Redirect user to Google's OAuth2 consent screen
+    client_id = os.getenv('GOOGLE_CLIENT_ID')
+    redirect_uri = os.getenv('GOOGLE_OAUTH_REDIRECT') or (request.host_url.rstrip('/') + '/api/auth/google/callback')
+    scope = 'openid email profile'
+    state = str(uuid.uuid4())
+
+    params = {
+        'client_id': client_id,
+        'redirect_uri': redirect_uri,
+        'response_type': 'code',
+        'scope': scope,
+        'state': state,
+        'prompt': 'select_account'
+    }
+
+    auth_url = 'https://accounts.google.com/o/oauth2/v2/auth?' + urlencode(params)
+    return jsonify({'redirect': auth_url})
+
+
+@app.route('/api/auth/google/callback')
+def google_callback():
+    # Exchange code for token and return a small redirect to frontend with access token
+    code = request.args.get('code')
+    if not code:
+        return jsonify({'success': False, 'message': 'No code provided'}), 400
+
+    token_url = 'https://oauth2.googleapis.com/token'
+    client_id = os.getenv('GOOGLE_CLIENT_ID')
+    client_secret = os.getenv('GOOGLE_CLIENT_SECRET')
+    redirect_uri = os.getenv('GOOGLE_OAUTH_REDIRECT') or (request.host_url.rstrip('/') + '/api/auth/google/callback')
+
+    token_payload = {
+        'code': code,
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'redirect_uri': redirect_uri,
+        'grant_type': 'authorization_code'
+    }
+
+    try:
+        token_resp = requests.post(token_url, data=token_payload)
+        token_resp.raise_for_status()
+        token_data = token_resp.json()
+        id_token = token_data.get('id_token')
+
+        # Use id_token to get user info
+        userinfo_resp = requests.get('https://www.googleapis.com/oauth2/v3/userinfo', headers={
+            'Authorization': f"Bearer {token_data.get('access_token')}"
+        })
+        userinfo_resp.raise_for_status()
+        profile = userinfo_resp.json()
+
+        result, status_code = auth_manager.handle_google_oauth(profile)
+
+        if result.get('success'):
+            # Redirect to frontend with token in hash fragment so SPA can pick it up
+            frontend_url = os.getenv('FRONTEND_URL') or (request.host_url.rstrip('/') + '/')
+            params = {
+                'token': result.get('access_token')
+            }
+            redirect_url = frontend_url + '#/auth-callback?' + urlencode(params)
+            return redirect(redirect_url)
+        else:
+            return jsonify(result), status_code
+
+    except Exception as e:
+        print('Google OAuth callback error:', e)
+        return jsonify({'success': False, 'message': 'OAuth exchange failed'}), 500
 
 @app.route('/api/update-profile', methods=['POST'])
 @jwt_required()

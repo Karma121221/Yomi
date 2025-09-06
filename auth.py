@@ -383,6 +383,83 @@ class AuthManager:
             print(f"Remove kanji error: {e}")
             return {'success': False, 'message': 'Internal server error'}, 500
 
+    def handle_google_oauth(self, google_profile):
+        """Find or create a user from Google profile info and return access token+user"""
+        try:
+            if self.users_collection is None:
+                return {'success': False, 'message': 'Database connection failed'}, 500
+
+            email = google_profile.get('email', '').strip().lower()
+            full_name = google_profile.get('name', '').strip()
+            google_id = google_profile.get('id')
+
+            if not email:
+                return {'success': False, 'message': 'Google profile did not include an email'}, 400
+
+            # Try to find existing user by email
+            user = self.users_collection.find_one({'email': email})
+
+            if user is None:
+                # Create a username suggestion from email
+                base_username = email.split('@')[0]
+                username = base_username
+                counter = 1
+                while self.users_collection.find_one({'username': username}):
+                    username = f"{base_username}{counter}"
+                    counter += 1
+
+                user_doc = {
+                    'email': email,
+                    'username': username,
+                    'password': None,
+                    'full_name': full_name,
+                    'google_id': google_id,
+                    'created_at': None,
+                    'profile_settings': {
+                        'theme': 'dark',
+                        'language': 'en',
+                        'notifications': True
+                    },
+                    'study_progress': {
+                        'texts_processed': 0,
+                        'kanji_learned': [],
+                        'favorite_texts': []
+                    }
+                }
+
+                result = self.users_collection.insert_one(user_doc)
+                if result.inserted_id:
+                    user = self.users_collection.find_one({'_id': result.inserted_id})
+                else:
+                    return {'success': False, 'message': 'Failed to create user from Google profile'}, 500
+
+            # Create access token for the user
+            access_token = create_access_token(
+                identity=str(user['_id']),
+                additional_claims={
+                    'email': user.get('email'),
+                    'username': user.get('username'),
+                    'full_name': user.get('full_name')
+                }
+            )
+
+            return {
+                'success': True,
+                'access_token': access_token,
+                'user': {
+                    'id': str(user['_id']),
+                    'email': user.get('email'),
+                    'username': user.get('username'),
+                    'full_name': user.get('full_name'),
+                    'profile_settings': user.get('profile_settings', {}),
+                    'study_progress': user.get('study_progress', {})
+                }
+            }, 200
+
+        except Exception as e:
+            print(f"Google OAuth handling error: {e}")
+            return {'success': False, 'message': 'Internal server error'}, 500
+
     def update_user_profile(self, user_id, full_name, username):
         """Update user profile information"""
         try:

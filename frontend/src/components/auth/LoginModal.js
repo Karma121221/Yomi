@@ -11,7 +11,7 @@ const LoginModal = ({ isOpen, onClose, switchToRegister, fromLanding = false, on
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
-  const { login } = useAuth();
+  const { login, startGoogleLogin } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -59,6 +59,12 @@ const LoginModal = ({ isOpen, onClose, switchToRegister, fromLanding = false, on
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
+          <div className="oauth-row">
+            <button type="button" className="google-btn" onClick={startGoogleLogin}>
+              <img src="/yomu.png" alt="Google" className="google-icon" />
+              Continue with Google
+            </button>
+          </div>
           {error && (
             <div className="auth-error">
               <svg className="error-icon" viewBox="0 0 24 24" fill="currentColor">

@@ -97,6 +97,21 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   }, []);
 
+  // Listen for OAuth login events triggered by handleOAuthCallback
+  useEffect(() => {
+    const handler = (e) => {
+      const { token: newToken, user: newUser } = e.detail || {};
+      if (newToken) {
+        localStorage.setItem('token', newToken);
+        setToken(newToken);
+      }
+      if (newUser) setUser(newUser);
+    };
+
+    window.addEventListener('yomi_oauth_login', handler);
+    return () => window.removeEventListener('yomi_oauth_login', handler);
+  }, []);
+
   const login = async (identifier, password) => {
     try {
       const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
@@ -205,6 +220,8 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+  startGoogleLogin,
+  handleOAuthCallback,
     updateUserProgress,
     updateUserProfile,
     isAuthenticated: !!user,
@@ -216,3 +233,48 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+// Helper to initiate Google OAuth by asking backend for redirect URL
+export async function startGoogleLogin() {
+  try {
+    const resp = await fetch(`${API_BASE_URL}/api/auth/google/login`);
+    const data = await resp.json();
+    if (data && data.redirect) {
+      // Open Google's auth in a new tab for better UX
+      window.open(data.redirect, '_self');
+    }
+  } catch (err) {
+    console.error('Failed to start Google login', err);
+  }
+}
+
+// Handle token passed back via URL fragment/hash from OAuth flow
+export async function handleOAuthCallback() {
+  try {
+    // Expect location.hash like '#/auth-callback?token=...'
+    const hash = window.location.hash || '';
+    const idx = hash.indexOf('token=');
+    if (idx === -1) return false;
+    const token = decodeURIComponent(hash.substring(idx + 6));
+    if (!token) return false;
+
+    localStorage.setItem('token', token);
+    // Refresh page state by reloading user profile
+    const profileResp = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (profileResp.ok) {
+      const profileData = await profileResp.json();
+      // profileData may be { success: true, user: {...} }
+      if (profileData.user) {
+        // set user and token in the provider by dispatching a custom event
+        window.dispatchEvent(new CustomEvent('yomi_oauth_login', { detail: { token, user: profileData.user } }));
+        return true;
+      }
+    }
+    return false;
+  } catch (err) {
+    console.error('OAuth callback handling failed', err);
+    return false;
+  }
+}

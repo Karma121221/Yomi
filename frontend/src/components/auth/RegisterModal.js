@@ -18,7 +18,7 @@ const RegisterModal = ({ isOpen, onClose, switchToLogin, fromLanding = false, on
     length: false,
   });
 
-  const { register } = useAuth();
+  const { register, startGoogleLogin } = useAuth();
 
   const validatePassword = (password) => {
     return {
@@ -112,6 +112,12 @@ const RegisterModal = ({ isOpen, onClose, switchToLogin, fromLanding = false, on
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
+          <div className="oauth-row">
+            <button type="button" className="google-btn" onClick={startGoogleLogin}>
+              <img src="/yomu.png" alt="Google" className="google-icon" />
+              Continue with Google
+            </button>
+          </div>
           {error && (
             <div className="auth-error">
               <svg className="error-icon" viewBox="0 0 24 24" fill="currentColor">
